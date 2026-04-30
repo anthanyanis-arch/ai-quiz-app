@@ -2,8 +2,8 @@
 // Automatically load-balances between 2 Render backend instances
 (function () {
   const BACKENDS = [
-    'https://ai-quiz-backend-1.onrender.com/api',
-    'https://ai-quiz-backend-2.onrender.com/api',
+    'https://ai-quiz-app-ks1j.onrender.com/api',
+    'https://ai-quiz-app-ks1j.onrender.com/api',
   ];
 
   // Pick backend based on a random sticky session stored in sessionStorage
