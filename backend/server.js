@@ -7,19 +7,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const cluster = require('cluster');
-const os = require('os');
-
-// ── Cluster: use all CPU cores ────────────────────────────────────────────────
-if (cluster.isMaster) {
-  const cpus = os.cpus().length;
-  console.log(`Master ${process.pid} running — forking ${cpus} workers`);
-  for (let i = 0; i < cpus; i++) cluster.fork();
-  cluster.on('exit', (worker) => {
-    console.log(`Worker ${worker.process.pid} died — restarting`);
-    cluster.fork();
-  });
-} else {
 
 const app = express();
 
@@ -41,7 +28,13 @@ app.use((req, res, next) => {
 });
 
 // ── Middleware ────────────────────────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://your-netlify-app.netlify.app',
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,7 +66,5 @@ app.use((err, req, res, next) => {
 const connectDB = require('./db');
 connectDB().then(() => {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Worker ${process.pid} running at http://localhost:${PORT}`));
+  app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 });
-
-} // end cluster worker
