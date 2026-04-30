@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration Successful – AI Quiz 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+    h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #eef2ff 0%, #ffffff 45%, #f5f0ff 70%, #e0f7ff 100%);
+      background-attachment: fixed;
+      color: #0f0c29;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+    }
+
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: 0; opacity: 1;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.80);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(108,99,255,0.12);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px rgba(15,12,41,0.10), 0 0 0 1px rgba(108,99,255,0.06);
+    }
+
+    .navbar-glass {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(108,99,255,0.10);
+    }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 24px; border-radius: 14px;
+      background: linear-gradient(135deg, #6c63ff 0%, #4f46e5 100%);
+      color: #ffffff;
+      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px;
+      border: 1px solid rgba(108,99,255,0.25);
+      cursor: pointer; text-decoration: none;
+      transition: all 0.35s cubic-bezier(.23,1,.32,1);
+      box-shadow: 0 4px 24px rgba(108,99,255,0.15);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 36px rgba(108,99,255,0.25); }
+
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 24px; border-radius: 14px;
+      background: rgba(108,99,255,0.05);
+      color: #6b7280;
+      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px;
+      border: 1px solid rgba(108,99,255,0.20);
+      cursor: pointer; text-decoration: none;
+      transition: all 0.35s cubic-bezier(.23,1,.32,1);
+    }
+    .btn-secondary:hover { background: rgba(108,99,255,0.10); color: #0f0c29; }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.85) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .pop-in { animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1) both; }
+
+    @keyframes checkDraw {
+      from { stroke-dashoffset: 100; }
+      to   { stroke-dashoffset: 0; }
+    }
+    .check-path {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: checkDraw 0.6s 0.3s ease forwards;
+    }
+
+    @keyframes ringPing {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+    .ring-ping {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid rgba(108,99,255,0.35);
+      animation: ringPing 1.4s ease-out 0.4s infinite;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .slide-up-1 { animation: slideUp 0.4s 0.2s ease both; }
+    .slide-up-2 { animation: slideUp 0.4s 0.35s ease both; }
+    .slide-up-3 { animation: slideUp 0.4s 0.50s ease both; }
+    .slide-up-4 { animation: slideUp 0.4s 0.65s ease both; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.15); border-radius: 3px; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+  <div class="grid-overlay"></div>
+  <div class="blob w-[600px] h-[600px]" style="top:-200px;left:-200px;background:rgba(108,99,255,0.15)"></div>
+  <div class="blob w-[500px] h-[500px]" style="bottom:-150px;right:-150px;background:rgba(0,198,255,0.12)"></div>
+
+  <script src="api.js"></script>
+  <script src="ambient.js"></script>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <main class="relative z-10 flex-grow flex items-center justify-center py-12 px-4">
+    <div class="pop-in w-full max-w-md">
+      <div class="glass p-8 text-center">
+
+        <!-- Check icon -->
+        <div class="flex justify-center mb-6 slide-up-1">
+          <div class="relative w-20 h-20">
+            <div class="ring-ping"></div>
+            <div class="w-20 h-20 rounded-full flex items-center justify-center"
+                 style="background:rgba(108,99,255,0.10);border:1px solid rgba(108,99,255,0.25)">
+              <svg width="40" height="40" viewBox="0 0 52 52" fill="none">
+                <path class="check-path" d="M15 26l9 9 15-18"
+                      stroke="#6c63ff" stroke-width="3.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <h1 class="font-display font-bold text-3xl text-[#0f0c29] mb-2 slide-up-1">Registration Sent!</h1>
+        <p class="text-[#6b7280] text-sm mb-6 slide-up-2">Your application is pending admin verification.</p>
+
+        <!-- Details card -->
+        <div class="rounded-xl p-4 mb-4 text-left slide-up-3"
+             style="background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.12)">
+          <p class="text-xs text-[#6b7280]/60 uppercase tracking-widest font-semibold mb-3">Submitted As</p>
+          <p class="text-sm text-[#0f0c29] font-semibold" id="detail-name">—</p>
+          <p class="text-xs text-[#6b7280] mt-1" id="detail-email">—</p>
+          <p class="text-xs text-[#6b7280] mt-0.5" id="detail-school">—</p>
+        </div>
+
+        <!-- Pending badge -->
+        <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl mb-6 slide-up-3"
+             style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2)">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+          <span class="text-xs font-semibold" style="color:#fbbf24">Pending admin approval — you'll be notified via email</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 slide-up-4">
+          <a href="login.html" class="btn-primary flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Login
+          </a>
+          <a href="index.html" class="btn-secondary flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    console.log('[success.html] Page loaded');
+
+    // Read registration data saved by register.html before redirect
+    const reg = JSON.parse(sessionStorage.getItem('regSuccess') || 'null');
+    console.log('[success.html] regSuccess data:', reg);
+
+    if (reg) {
+      document.getElementById('detail-name').textContent   = reg.name   || '—';
+      document.getElementById('detail-email').textContent  = reg.email  || '—';
+      document.getElementById('detail-school').textContent = reg.school || '—';
+      sessionStorage.removeItem('regSuccess'); // clean up
+    }
+  </script>
+</body>
+</html>

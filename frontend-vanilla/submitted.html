@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Submitted – AI Quiz 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: { DEFAULT: '#0d1117', 800: '#161b22' },
+            sky: { soft: '#e0f2fe', mid: '#7dd3fc', deep: '#0284c7' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #eef2ff 0%, #ffffff 45%, #f5f0ff 70%, #e0f7ff 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: 0; opacity: 1;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(108,99,255,0.12);
+      box-shadow: 0 8px 32px rgba(15,12,41,0.10), 0 0 0 1px rgba(108,99,255,0.06);
+      transition: background .3s, border .3s;
+    }
+
+    .navbar-glass {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid rgba(108,99,255,0.10);
+      box-shadow: 0 1px 32px rgba(15,12,41,0.08);
+      transition: background .3s;
+    }
+
+    .text-gray-900 { color: #0f0c29; }
+    .text-gray-700 { color: #0f0c29; }
+    .text-gray-600 { color: #6b7280; }
+    .text-gray-500 { color: #6b7280; }
+
+    @keyframes popIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+    .pop-in { animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes iconPop { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
+    .icon-pop { animation: iconPop .4s cubic-bezier(.34,1.56,.64,1) .3s both; }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; padding: 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6c63ff, #4f46e5);
+      color: #ffffff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid rgba(108,99,255,0.25);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 4px 20px rgba(108,99,255,0.15);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,99,255,0.25); }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.20); border-radius: 99px; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col" id="body">
+
+  <!-- Blobs -->
+  <div class="blob w-[600px] h-[600px] top-[-200px] right-[-200px]" style="background:radial-gradient(circle,rgba(108,99,255,0.15) 0%,transparent 70%)"></div>
+  <div class="blob w-[500px] h-[500px] bottom-[-150px] left-[-150px]" style="background:radial-gradient(circle,rgba(0,198,255,0.10) 0%,transparent 70%)"></div>
+
+  <script src="api.js"></script>
+  <script src="ambient.js"></script>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <main class="flex-grow relative z-10 flex items-center justify-center p-4 py-12">
+    <div class="pop-in w-full max-w-lg">
+      <div class="glass rounded-2xl p-8 md:p-12 text-center">
+
+        <!-- 3D Celebration Icon -->
+        <div class="icon-pop flex justify-center mb-6">
+          <svg width="130" height="120" viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 32px rgba(16,185,129,0.4)) drop-shadow(0 4px 10px rgba(0,0,0,0.2))">
+            <defs>
+              <linearGradient id="subg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#059669"/></linearGradient>
+              <linearGradient id="subg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a7f3d0"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+              <linearGradient id="substar" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+            </defs>
+            <ellipse cx="65" cy="116" rx="38" ry="7" fill="rgba(16,185,129,0.2)"/>
+            <!-- big check circle -->
+            <circle cx="65" cy="58" r="44" fill="url(#subg1)"/>
+            <circle cx="65" cy="58" r="44" fill="url(#subg2)" opacity="0.35"/>
+            <circle cx="65" cy="58" r="34" fill="#064e3b" opacity="0.5"/>
+            <!-- checkmark -->
+            <path d="M44 58 L57 71 L86 44" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- shine arc -->
+            <path d="M38 36 Q44 28 56 26" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <!-- confetti -->
+            <rect x="18" y="20" width="6" height="6" rx="1" fill="#fbbf24" transform="rotate(20,21,23)" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="1.5s" repeatCount="indefinite"/></rect>
+            <rect x="106" y="18" width="5" height="5" rx="1" fill="#f472b6" transform="rotate(-15,108,20)" opacity="0.9"><animate attributeName="opacity" values="0.9;0.2;0.9" dur="1.8s" repeatCount="indefinite"/></rect>
+            <circle cx="22" cy="70" r="4" fill="#818cf8" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur="2s" repeatCount="indefinite"/></circle>
+            <circle cx="108" cy="72" r="3.5" fill="#34d399" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur="1.6s" repeatCount="indefinite"/></circle>
+            <rect x="100" y="38" width="5" height="5" rx="1" fill="#fbbf24" transform="rotate(30,102,40)" opacity="0.8"><animate attributeName="opacity" values="0.8;0.1;0.8" dur="2.2s" repeatCount="indefinite"/></rect>
+            <rect x="24" y="42" width="4" height="4" rx="1" fill="#f87171" transform="rotate(-20,26,44)" opacity="0.7"><animate attributeName="opacity" values="0.7;0.1;0.7" dur="1.9s" repeatCount="indefinite"/></rect>
+            <!-- star top -->
+            <path d="M65 8 L67.5 15 L75 15 L69 19.5 L71.5 27 L65 22.5 L58.5 27 L61 19.5 L55 15 L62.5 15 Z" fill="url(#substar)"/>
+          </svg>
+        </div>
+
+        <h1 class="font-display font-bold text-3xl text-[#0f0c29] mb-2">Submission Successful!</h1>
+        <p class="text-gray-500 mb-6">
+          Thank you for participating in the AI Quiz Competition. Your responses have been recorded successfully.
+        </p>
+
+        <!-- Score card -->
+        <div class="glass rounded-xl p-6 mb-6">
+          <p class="text-gray-500 text-sm mb-2">Your Score</p>
+          <div class="flex items-end justify-center gap-2 mb-3">
+            <span id="score-val" class="font-display font-bold text-5xl text-[#6c63ff]">–</span>
+            <span id="score-total" class="font-display font-bold text-2xl text-gray-400 mb-1">/ –</span>
+          </div>
+          <div class="w-full bg-[#6c63ff]/10 rounded-full h-2 mb-3">
+            <div id="score-bar" class="h-2 rounded-full bg-gradient-to-r from-[#6c63ff] to-[#059669] transition-all duration-1000" style="width:0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-400">
+            <span id="score-pct"></span>
+            <span id="score-time"></span>
+          </div>
+        </div>
+
+        <!-- Info box -->
+        <div class="glass rounded-xl p-5 mb-8 flex items-center gap-4 text-left">
+          <svg class="text-sky-deep shrink-0" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+          <div>
+            <h3 class="font-display font-semibold text-[#0f0c29]">Results & Certificate</h3>
+            <p class="text-sm text-gray-500 mt-1">We will update your score and send your e-certificate via your email within 8 hours.</p>
+          </div>
+        </div>
+
+        <a href="index.html" class="btn-primary">Return to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 pb-8">
+    <div class="container mx-auto px-4">
+      <div class="glass rounded-2xl p-5 text-center">
+        <p class="text-gray-400 text-xs mb-1">© <span id="year"></span> AI Quiz Competition</p>
+        <p class="font-display font-bold text-sm mt-1" style="color:#dc2626">AAA COLLEGE OF ENGINEERING AND TECHNOLOGY</p>
+        <p class="text-gray-400 text-xs mt-1">Department of Artificial Intelligence & Data Science</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const API = window.API || 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
+        .then(r => r.json())
+        .then(user => {
+          // Fetch the student's submitted attempt via leaderboard isn't ideal,
+          // so we store score in localStorage when submitting from quiz.html
+        });
+    }
+
+    // Read score saved by quiz.html at submission time
+    const result = JSON.parse(localStorage.getItem('quizResult') || 'null');
+    if (result) {
+      document.getElementById('score-val').textContent = result.score;
+      document.getElementById('score-total').textContent = `/ ${result.totalMarks}`;
+      const pct = Math.round((result.score / result.totalMarks) * 100);
+      const mins = Math.floor(result.timeTaken / 60);
+      const secs = result.timeTaken % 60;
+      document.getElementById('score-pct').textContent = `${pct}%`;
+      document.getElementById('score-time').textContent = `Time: ${mins}m ${secs}s`;
+      setTimeout(() => {
+        document.getElementById('score-bar').style.width = pct + '%';
+      }, 300);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>3D Handshake Cinematic</title>
+<style>
+  body { margin: 0; height: 200vh; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+
+<body>
+
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js";
+
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0x020b0d);
+
+let camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(0, 1.5, 6);
+
+let renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+/* 💡 LIGHTING (CINEMATIC) */
+const light = new THREE.DirectionalLight(0x00ffff, 1.2);
+light.position.set(5, 10, 5);
+light.castShadow = true;
+scene.add(light);
+
+scene.add(new THREE.AmbientLight(0x0a1f25, 0.6));
+
+/* 🔄 LOAD MODELS */
+const loader = new GLTFLoader();
+
+let robot, human;
+
+loader.load("robot.glb", (gltf) => {
+  robot = gltf.scene;
+  robot.scale.set(1.5,1.5,1.5);
+  robot.position.set(3,0,0);
+  scene.add(robot);
+});
+
+loader.load("human.glb", (gltf) => {
+  human = gltf.scene;
+  human.scale.set(1.5,1.5,1.5);
+  human.position.set(-3,0,0);
+  scene.add(human);
+});
+
+/* 🎬 SCROLL CONTROL */
+let scrollY = 0;
+window.addEventListener("scroll", () => {
+  scrollY = window.scrollY;
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  let progress = Math.min(scrollY / 800, 1);
+
+  /* 🎯 MOVE TOWARDS CENTER */
+  if (robot && human) {
+    let eased = 1 - Math.pow(1 - progress, 3);
+
+    robot.position.x = 3 - eased * 3;
+    human.position.x = -3 + eased * 3;
+
+    /* 🤝 HANDSHAKE FEEL */
+    if (progress > 0.8) {
+      let t = Date.now() * 0.005;
+      robot.position.y = Math.sin(t) * 0.05;
+      human.position.y = Math.sin(t) * 0.05;
+    }
+  }
+
+  /* 🎥 CAMERA CINEMATIC MOVE */
+  camera.position.z = 6 - progress * 2;
+  camera.lookAt(0,1,0);
+
+  renderer.render(scene, camera);
+}
+
+animate();
+
+/* 📱 RESIZE */
+window.addEventListener("resize", () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+</body>
+</html>

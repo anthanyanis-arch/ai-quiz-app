@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – AI Quiz 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: { DEFAULT: '#0d1117', 800: '#161b22' },
+            sky: { soft: '#e0f2fe', mid: '#a78bfa', deep: '#6c63ff' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #eef2ff 0%, #ffffff 45%, #f5f0ff 70%, #e0f7ff 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: 0; opacity: 1;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(108,99,255,0.12);
+      box-shadow: 0 8px 32px rgba(15,12,41,0.30), 0 0 0 1px rgba(108,99,255,0.06);
+      transition: background .3s, border .3s;
+    }
+
+    .navbar-glass {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid rgba(108,99,255,0.10);
+      box-shadow: 0 1px 32px rgba(15,12,41,0.30);
+      transition: background .3s;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(108,99,255,0.15);
+      background: rgba(255,255,255,0.80);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: #0f0c29;
+      outline: none;
+      transition: border .2s, box-shadow .2s;
+    }
+    .field-input::placeholder { color: rgba(143,179,187,0.45); }
+    .field-input:focus {
+      border-color: rgba(108,99,255,0.45);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.10);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6c63ff, #4f46e5);
+      color: #ffffff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      border: 1px solid rgba(108,99,255,0.25);
+      cursor: pointer;
+      transition: all .35s cubic-bezier(.34,1.56,.64,1);
+      box-shadow: 0 4px 20px rgba(108,99,255,0.15);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,99,255,0.25); }
+    .btn-primary:active { transform: translateY(0) scale(0.98); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .text-gray-900 { color: #0f0c29; }
+    .text-gray-700 { color: #0f0c29; }
+    .text-gray-600 { color: #6b7280; }
+    .text-gray-500 { color: #6b7280; }
+
+    .otp-box {
+      width: 44px; height: 52px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(108,99,255,0.2);
+      background: rgba(255,255,255,0.80);
+      color: #0f0c29;
+      font-size: 22px;
+      font-family: 'DM Sans', monospace;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+      transition: border .2s, box-shadow .2s, transform .15s;
+      caret-color: #6c63ff;
+    }
+    .otp-box:focus {
+      border-color: rgba(108,99,255,0.6);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+      transform: scale(1.08);
+    }
+    .otp-box.filled {
+      border-color: rgba(108,99,255,0.45);
+      background: rgba(108,99,255,0.08);
+    }
+
+    .fade-in { animation: fadeIn .4s ease both; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.2); border-radius: 99px; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col" id="body">
+
+  <!-- Blobs -->
+  <div class="blob w-[600px] h-[600px] top-[-200px] left-[-200px]" style="background:radial-gradient(circle,rgba(108,99,255,0.15) 0%,transparent 70%)"></div>
+  <div class="blob w-[500px] h-[500px] bottom-[-150px] right-[-150px]" style="background:radial-gradient(circle,rgba(0,198,255,0.10) 0%,transparent 70%)"></div>
+
+  <script src="api.js"></script>
+  <script src="ambient.js"></script>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <main class="flex-grow relative z-10 flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-md fade-in">
+
+      <!-- Header -->
+      <div class="text-center mb-6">
+        <!-- 3D Login Illustration -->
+        <div class="flex justify-center mb-4">
+          <svg width="110" height="100" viewBox="0 0 110 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 10px 28px rgba(2,132,199,0.35)) drop-shadow(0 3px 8px rgba(0,0,0,0.18));animation:float 4s ease-in-out infinite">
+            <style>.float{animation:floatL 4s ease-in-out infinite}@keyframes floatL{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}</style>
+            <defs>
+              <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6c63ff"/></linearGradient>
+              <linearGradient id="lg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c4b5fd"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>
+              <linearGradient id="lkey" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+            </defs>
+            <!-- shadow -->
+            <ellipse cx="55" cy="96" rx="32" ry="6" fill="rgba(2,132,199,0.15)"/>
+            <!-- robot body -->
+            <rect x="28" y="52" width="54" height="36" rx="10" fill="url(#lg1)"/>
+            <rect x="28" y="52" width="54" height="14" rx="10" fill="url(#lg2)" opacity="0.5"/>
+            <!-- robot head -->
+            <rect x="34" y="20" width="42" height="36" rx="12" fill="url(#lg1)"/>
+            <rect x="34" y="20" width="42" height="14" rx="12" fill="rgba(255,255,255,0.2)"/>
+            <!-- eyes -->
+            <circle cx="47" cy="34" r="6" fill="#1e1b4b"/>
+            <circle cx="63" cy="34" r="6" fill="#1e1b4b"/>
+            <circle cx="49" cy="32" r="2.5" fill="#6c63ff"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+            <circle cx="65" cy="32" r="2.5" fill="#6c63ff"><animate attributeName="opacity" values="1;0.4;1" dur="2s" begin="0.4s" repeatCount="indefinite"/></circle>
+            <!-- mouth / OTP display -->
+            <rect x="40" y="44" width="30" height="8" rx="4" fill="#1e1b4b"/>
+            <text x="55" y="50.5" text-anchor="middle" font-size="6" font-weight="bold" fill="#6c63ff" font-family="monospace">● ● ● ●</text>
+            <!-- antenna -->
+            <line x1="55" y1="20" x2="55" y2="10" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="55" cy="8" r="4" fill="#6c63ff"><animate attributeName="r" values="4;5.5;4" dur="1.5s" repeatCount="indefinite"/></circle>
+            <!-- key -->
+            <g transform="translate(72,62)" class="float">
+              <circle cx="8" cy="8" r="7" fill="url(#lkey)" stroke="#92400e" stroke-width="1"/>
+              <circle cx="8" cy="8" r="3.5" fill="#fef3c7"/>
+              <rect x="13" y="7" width="14" height="3" rx="1.5" fill="url(#lkey)"/>
+              <rect x="23" y="10" width="3" height="4" rx="1" fill="url(#lkey)"/>
+              <rect x="19" y="10" width="3" height="3" rx="1" fill="url(#lkey)"/>
+            </g>
+            <!-- body buttons -->
+            <circle cx="42" cy="68" r="4" fill="#4f46e5"/>
+            <circle cx="55" cy="68" r="4" fill="#4f46e5"/>
+            <circle cx="68" cy="68" r="4" fill="#4f46e5"/>
+            <circle cx="42" cy="78" r="4" fill="#4f46e5"/>
+            <circle cx="55" cy="78" r="4" fill="#4f46e5"/>
+            <circle cx="68" cy="78" r="4" fill="#4f46e5"/>
+          </svg>
+        </div>
+        <h1 class="font-display font-bold text-2xl text-[#0f0c29]">Student Portal Login</h1>
+        <p class="text-[#6b7280] text-sm mt-1">Access your dashboard and quiz</p>
+      </div>
+
+      <!-- Card -->
+      <div class="glass rounded-2xl p-6 sm:p-8">
+
+        <!-- Step 1 -->
+        <form id="step1" class="fade-in" onsubmit="handleSendOtp(event)">
+          <div id="err1" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-sm text-center"></div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-[#6b7280] mb-1.5 font-display">Email</label>
+            <input id="identifier" type="email" required placeholder="Enter registered email" class="field-input"/>
+          </div>
+          <button type="submit" id="otp-btn" class="btn-primary">Send OTP</button>
+          <p class="mt-5 text-center text-sm text-[#6b7280]">
+            Not registered? <a href="register.html" class="text-[#6c63ff] font-semibold hover:underline">Register here</a>
+          </p>
+        </form>
+
+        <!-- Step 2 OTP -->
+        <form id="step2" class="hidden fade-in" onsubmit="handleLogin(event)">
+          <div id="otp-info" class="mb-4 text-sm text-[#6b7280] text-center"></div>
+          <div id="err2" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-sm text-center"></div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-[#6b7280] mb-1.5 font-display">Enter OTP</label>
+            <div class="flex gap-2 justify-center" id="otp-boxes">
+              <input type="text" maxlength="1" class="otp-box" />
+              <input type="text" maxlength="1" class="otp-box" />
+              <input type="text" maxlength="1" class="otp-box" />
+              <input type="text" maxlength="1" class="otp-box" />
+              <input type="text" maxlength="1" class="otp-box" />
+              <input type="text" maxlength="1" class="otp-box" />
+            </div>
+            <input id="otp" type="hidden" />
+          </div>
+          <button type="submit" id="login-btn" class="btn-primary">Verify & Login</button>
+          <div class="mt-4 text-center space-y-2">
+            <p id="resend-timer" class="text-sm text-[#6b7280]">Resend OTP in <span id="countdown" class="text-[#6c63ff] font-semibold">30</span>s</p>
+            <button type="button" id="resend-btn" onclick="resendOtp()" class="hidden text-sm text-[#6c63ff] font-semibold hover:underline">Resend OTP</button>
+            <br/>
+            <button type="button" onclick="goBack()" class="text-sm text-[#6b7280] hover:text-[#6c63ff] transition-colors">← Change email</button>
+          </div>
+        </form>
+
+        <!-- Step 2 Admin Password -->
+        <form id="step2-admin" class="hidden fade-in" onsubmit="handleAdminLogin(event)">
+          <div id="err-admin" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-xl text-sm text-center"></div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold text-[#6b7280] mb-1.5 font-display">Admin Password</label>
+            <input id="admin-password" type="password" required placeholder="Enter admin password" class="field-input"/>
+          </div>
+          <button type="submit" id="admin-login-btn" class="btn-primary">Login</button>
+          <div class="mt-4 text-center">
+            <button type="button" onclick="goBack()" class="text-sm text-[#6b7280] hover:text-[#6c63ff] transition-colors">← Change email</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 pb-8">
+    <div class="container mx-auto px-4">
+      <div class="glass rounded-2xl p-5 text-center">
+        <p class="text-[#6b7280]/50 text-xs mb-1">© <span id="year"></span> AI Quiz Competition</p>
+        <p class="font-display font-bold text-sm mt-1" style="color:#dc2626">AAA COLLEGE OF ENGINEERING AND TECHNOLOGY</p>
+        <p class="text-gray-400 text-xs mt-1">Department of Artificial Intelligence & Data Science</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API = window.API || 'http://localhost:3000/api';
+
+    // OTP boxes logic
+    function initOtpBoxes() {
+      const boxes = [...document.querySelectorAll('.otp-box')];
+      boxes.forEach((box, i) => {
+        box.addEventListener('input', () => {
+          box.value = box.value.replace(/\D/g, '').slice(-1);
+          box.classList.toggle('filled', box.value !== '');
+          if (box.value && i < 5) boxes[i + 1].focus();
+          syncOtp(boxes);
+        });
+        box.addEventListener('keydown', e => {
+          if (e.key === 'Backspace' && !box.value && i > 0) {
+            boxes[i - 1].value = '';
+            boxes[i - 1].classList.remove('filled');
+            boxes[i - 1].focus();
+            syncOtp(boxes);
+          }
+        });
+        box.addEventListener('paste', e => {
+          e.preventDefault();
+          const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+          text.split('').forEach((ch, j) => {
+            if (boxes[j]) { boxes[j].value = ch; boxes[j].classList.add('filled'); }
+          });
+          boxes[Math.min(text.length, 5)].focus();
+          syncOtp(boxes);
+        });
+      });
+    }
+    function syncOtp(boxes) {
+      document.getElementById('otp').value = boxes.map(b => b.value).join('');
+    }
+    function clearOtpBoxes() {
+      document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; b.classList.remove('filled'); });
+      document.getElementById('otp').value = '';
+    }
+    initOtpBoxes();
+
+    let emailValue = '';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Redirect if already logged in as student only
+    const existingUser = JSON.parse(localStorage.getItem('user') || 'null');
+    if (existingUser && existingUser.role !== 'admin') {
+      window.location.href = 'instructions.html';
+    }
+
+    function goBack() {
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step2-admin').classList.add('hidden');
+      document.getElementById('step1').classList.remove('hidden');
+      clearInterval(timerInterval);
+    }
+
+    let timerInterval;
+    function startResendTimer() {
+      let seconds = 30;
+      const countdown = document.getElementById('countdown');
+      const timerEl = document.getElementById('resend-timer');
+      const resendBtn = document.getElementById('resend-btn');
+      timerEl.classList.remove('hidden');
+      resendBtn.classList.add('hidden');
+      countdown.textContent = seconds;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timerInterval);
+          timerEl.classList.add('hidden');
+          resendBtn.classList.remove('hidden');
+        }
+      }, 1000);
+    }
+
+    async function resendOtp() {
+      const err = document.getElementById('err2');
+      err.classList.add('hidden');
+      try {
+        const res = await fetch(`${API}/auth/send-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailValue })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to resend OTP');
+        document.getElementById('otp').value = '';
+        clearOtpBoxes();
+        startResendTimer();
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.classList.remove('hidden');
+      }
+    }
+
+    async function handleSendOtp(e) {
+      e.preventDefault();
+      const btn = document.getElementById('otp-btn');
+      const err = document.getElementById('err1');
+      err.classList.add('hidden');
+      emailValue = document.getElementById('identifier').value.trim();
+      btn.disabled = true;
+      btn.textContent = 'Checking...';
+      try {
+        // Check if admin — skip OTP, show password form
+        const checkRes = await fetch(`${API}/auth/send-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailValue })
+        });
+        const checkData = await checkRes.json();
+        if (checkData.isAdmin) {
+          document.getElementById('step1').classList.add('hidden');
+          document.getElementById('step2-admin').classList.remove('hidden');
+          setTimeout(() => document.getElementById('admin-password').focus(), 100);
+          return;
+        }
+        if (!checkRes.ok) throw new Error(checkData.message || 'Failed to send OTP');
+        document.getElementById('otp-info').innerHTML = `OTP sent to <strong class="text-gray-900">${emailValue}</strong>`;
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        startResendTimer();
+        setTimeout(() => document.querySelector('.otp-box').focus(), 100);
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send OTP';
+      }
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('admin-login-btn');
+      const err = document.getElementById('err-admin');
+      err.classList.add('hidden');
+      const password = document.getElementById('admin-password').value;
+      btn.disabled = true;
+      btn.textContent = 'Logging in...';
+      try {
+        const res = await fetch(`${API}/auth/admin-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailValue, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Login failed');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = 'admin.html';
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const err = document.getElementById('err2');
+      err.classList.add('hidden');
+      const otp = document.getElementById('otp').value;
+      if (otp.length < 6) {
+        err.textContent = 'Please enter all 6 digits';
+        err.classList.remove('hidden');
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      try {
+        const res = await fetch(`${API}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailValue, otp })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Login failed');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        // OTP login is only for students — always go to instructions
+        window.location.href = 'instructions.html';
+      } catch (ex) {
+        err.textContent = ex.message;
+        err.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Verify & Login';
+      }
+    }
+  </script>
+</body>
+</html>

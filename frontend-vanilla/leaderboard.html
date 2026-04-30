@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard – AI Quiz 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: { DEFAULT: '#0d1117', 800: '#161b22' },
+            sky: { soft: '#e0f2fe', mid: '#7dd3fc', deep: '#0284c7' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+    body {
+      background: linear-gradient(160deg, #031f24 0%, #062f36 40%, #021417 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(63,208,230,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(63,208,230,0.04) 1px, transparent 1px);
+      background-size: 52px 52px;
+      pointer-events: none;
+    }
+    .blob {
+      position: fixed; border-radius: 50%; filter: blur(100px);
+      pointer-events: none; z-index: 0; opacity: 1;
+    }
+    .glass {
+      background: rgba(6,47,54,0.55);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(63,208,230,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(63,208,230,0.06);
+      transition: background .3s, border .3s;
+    }
+    .navbar-glass {
+      background: rgba(2,20,23,0.85);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid rgba(63,208,230,0.10);
+      box-shadow: 0 1px 32px rgba(0,0,0,0.4);
+      transition: background .3s;
+    }
+    .podium-card {
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+      transform-origin: bottom center;
+    }
+    .podium-card:hover, .podium-card:active {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow: 0 24px 56px rgba(0,0,0,.5);
+    }
+    .table-row { transition: background .2s, transform .2s; }
+    .table-row:hover { background: rgba(63,208,230,0.05); transform: translateX(3px); }
+    .rank-gold   { background: linear-gradient(135deg,#fef3c7,#fbbf24); }
+    .rank-silver { background: linear-gradient(135deg,#f1f5f9,#94a3b8); }
+    .rank-bronze { background: linear-gradient(135deg,#ffedd5,#cd7c39); }
+    .glow-gold   { box-shadow: 0 0 20px rgba(251,191,36,.4), 0 4px 16px rgba(251,191,36,.2); }
+    .glow-silver { box-shadow: 0 0 20px rgba(148,163,184,.4), 0 4px 16px rgba(148,163,184,.2); }
+    .glow-bronze { box-shadow: 0 0 20px rgba(205,124,57,.4), 0 4px 16px rgba(205,124,57,.2); }
+    .search-wrap input {
+      background: rgba(6,47,54,0.50);
+      border: 1.5px solid rgba(63,208,230,0.15);
+      color: #d9f3f7;
+      transition: border .2s, box-shadow .2s;
+    }
+    .search-wrap input::placeholder { color: rgba(143,179,187,0.45); }
+    .search-wrap input:focus {
+      border-color: rgba(63,208,230,0.45);
+      box-shadow: 0 0 0 3px rgba(63,208,230,0.10);
+      outline: none;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(63,208,230,0.12);
+      border-top-color: #3fd0e6;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin-once { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    .spin-anim { animation: spin-once .6s linear; }
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .text-gray-900 { color: #ffffff !important; }
+    .text-gray-700 { color: #ffffff !important; }
+    .text-gray-600 { color: #cbd5e1 !important; }
+    .text-gray-500 { color: #cbd5e1 !important; }
+    .text-gray-400 { color: #94a3b8 !important; }
+    .bg-gray-50 { background: rgba(2,15,18,0.90) !important; }
+    .border-gray-200 { border-color: rgba(63,208,230,0.15) !important; }
+    .rank-badge {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    }
+    .score-bar { height: 4px; border-radius: 99px; background: linear-gradient(90deg, #3fd0e6, #8fb3bb); }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+      color: white; shrink: 0;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(63,208,230,0.20); border-radius: 99px; }
+  </style>
+</head>
+<body class="antialiased text-gray-800 min-h-screen flex flex-col" id="body">
+
+  <!-- Blobs -->
+  <div class="blob w-[600px] h-[600px] top-[-200px] left-[-200px]" style="background:radial-gradient(circle,rgba(10,61,71,0.7) 0%,transparent 70%)"></div>
+  <div class="blob w-[500px] h-[500px] bottom-[-150px] right-[-150px]" style="background:radial-gradient(circle,rgba(3,31,36,0.8) 0%,transparent 70%)"></div>
+
+  <script src="api.js"></script>
+  <script src="ambient.js"></script>
+  <div id="navbar-root"></div>
+  <script src="navbar.js"></script>
+
+  <main class="flex-grow relative z-10 container mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Hero header -->
+    <div class="text-center mb-10 reveal">
+      <!-- 3D Trophy Illustration -->
+      <div class="flex justify-center mb-4">
+        <svg width="140" height="120" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 32px rgba(251,191,36,0.4)) drop-shadow(0 4px 10px rgba(0,0,0,0.2));animation:floatTr 4s ease-in-out infinite"><style>@keyframes floatTr{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}</style>
+          <defs>
+            <linearGradient id="tg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#d97706"/></linearGradient>
+            <linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>
+            <linearGradient id="tbase" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#92400e"/><stop offset="100%" stop-color="#78350f"/></linearGradient>
+          </defs>
+          <ellipse cx="70" cy="116" rx="42" ry="7" fill="rgba(251,191,36,0.2)"/>
+          <!-- base -->
+          <rect x="46" y="96" width="48" height="10" rx="5" fill="url(#tbase)"/>
+          <rect x="52" y="88" width="36" height="10" rx="4" fill="#92400e"/>
+          <!-- stem -->
+          <rect x="62" y="76" width="16" height="14" rx="4" fill="url(#tg1)"/>
+          <!-- cup body -->
+          <path d="M38 28 Q34 56 50 68 Q60 74 70 74 Q80 74 90 68 Q106 56 102 28 Z" fill="url(#tg1)"/>
+          <path d="M38 28 Q34 44 46 56 Q56 64 70 64 Q84 64 94 56 Q106 44 102 28 Z" fill="url(#tg2)" opacity="0.4"/>
+          <!-- cup shine -->
+          <path d="M48 32 Q46 46 52 56" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <!-- handles -->
+          <path d="M38 36 Q24 36 24 50 Q24 62 38 60" stroke="url(#tg1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M102 36 Q116 36 116 50 Q116 62 102 60" stroke="url(#tg1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <!-- star inside -->
+          <path d="M70 38 L73 46 L82 46 L75 51 L78 59 L70 54 L62 59 L65 51 L58 46 L67 46 Z" fill="#fef3c7" opacity="0.9"/>
+          <!-- sparkles -->
+          <circle cx="28" cy="22" r="3" fill="#fbbf24" opacity="0.9"><animate attributeName="opacity" values="0.9;0.2;0.9" dur="1.8s" repeatCount="indefinite"/></circle>
+          <circle cx="112" cy="30" r="2.5" fill="#fcd34d" opacity="0.8"><animate attributeName="opacity" values="0.8;0.1;0.8" dur="2.2s" repeatCount="indefinite"/></circle>
+          <circle cx="118" cy="18" r="2" fill="#fbbf24" opacity="0.7"><animate attributeName="opacity" values="0.7;0.1;0.7" dur="1.5s" repeatCount="indefinite"/></circle>
+          <circle cx="22" cy="40" r="2" fill="#f59e0b" opacity="0.6"><animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.5s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+      <div class="inline-flex items-center gap-2 bg-[#3fd0e6]/10 border border-[#3fd0e6]/25 text-[#3fd0e6] text-xs font-semibold px-4 py-1.5 rounded-full mb-4">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Season 2026
+      </div>
+      <h1 class="font-display font-bold text-3xl sm:text-4xl lg:text-5xl text-[#d9f3f7] mb-3">Leaderboard</h1>
+      <p class="text-[#8fb3bb] text-base max-w-md mx-auto">Top performers in the AI Quiz Competition. Real-time rankings.</p>
+    </div>
+
+    <!-- Top 3 Podium -->
+    <div id="podium" class="hidden mb-10 reveal">
+      <div class="flex items-end justify-center gap-3 sm:gap-5">
+        <!-- 2nd place -->
+        <div class="podium-card glass rounded-2xl p-4 sm:p-5 text-center w-28 sm:w-36 glow-silver">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rank-silver rounded-full mx-auto mb-2 flex items-center justify-center font-display font-bold text-gray-700 text-lg">2</div>
+          <div id="p2-avatar" class="avatar mx-auto mb-2 text-sm" style="background:#64748b"></div>
+          <p id="p2-name" class="font-display font-bold text-sm text-[#d9f3f7] truncate"></p>
+          <p id="p2-school" class="text-[#8fb3bb] text-xs truncate mb-2"></p>
+          <p id="p2-score" class="font-display font-bold text-xl text-[#8fb3bb]"></p>
+        </div>
+        <!-- 1st place -->
+        <div class="podium-card glass rounded-2xl p-5 sm:p-6 text-center w-32 sm:w-40 glow-gold -mb-2">
+          <div class="text-2xl mb-1">🏆</div>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rank-gold rounded-full mx-auto mb-2 flex items-center justify-center font-display font-bold text-amber-800 text-xl">1</div>
+          <div id="p1-avatar" class="avatar mx-auto mb-2" style="background:#d97706"></div>
+          <p id="p1-name" class="font-display font-bold text-sm sm:text-base text-[#d9f3f7] truncate"></p>
+          <p id="p1-school" class="text-[#8fb3bb] text-xs truncate mb-2"></p>
+          <p id="p1-score" class="font-display font-bold text-2xl text-amber-400"></p>
+        </div>
+        <!-- 3rd place -->
+        <div class="podium-card glass rounded-2xl p-4 sm:p-5 text-center w-28 sm:w-36 glow-bronze">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rank-bronze rounded-full mx-auto mb-2 flex items-center justify-center font-display font-bold text-amber-900 text-lg">3</div>
+          <div id="p3-avatar" class="avatar mx-auto mb-2 text-sm" style="background:#b45309"></div>
+          <p id="p3-name" class="font-display font-bold text-sm text-[#d9f3f7] truncate"></p>
+          <p id="p3-school" class="text-[#8fb3bb] text-xs truncate mb-2"></p>
+          <p id="p3-score" class="font-display font-bold text-xl text-amber-500"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Controls -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5 reveal">
+      <div class="search-wrap relative flex-grow">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-input" type="text" placeholder="Search student or school…"
+          class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm font-medium placeholder-gray-400 backdrop-blur-sm"
+          oninput="filterTable()" />
+      </div>
+      <button onclick="refreshLeaderboard()"
+        class="glass flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-[#8fb3bb] hover:text-[#d9f3f7] active:scale-95 transition-all">
+        <svg id="refresh-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="glass rounded-2xl overflow-hidden reveal">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr style="background:rgba(2,15,18,0.95);border-bottom:1px solid rgba(63,208,230,0.2)">
+              <th class="p-4 font-display font-semibold text-center text-sm w-16" style="color:#3fd0e6">Rank</th>
+              <th class="p-4 font-display font-semibold text-sm" style="color:#3fd0e6">Student</th>
+              <th class="p-4 font-display font-semibold text-sm hidden sm:table-cell" style="color:#3fd0e6">School</th>
+              <th class="p-4 font-display font-semibold text-sm text-right" style="color:#3fd0e6">Score</th>
+              <th class="p-4 font-display font-semibold text-sm text-right hidden md:table-cell" style="color:#3fd0e6">Time</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="5" class="p-10 text-center"><div class="spinner inline-block"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 mt-auto pt-12 pb-8">
+    <div class="container mx-auto px-4 sm:px-6">
+      <div class="glass rounded-2xl p-6 sm:p-8 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-ink flex items-center justify-center mx-auto mb-4">
+          <svg class="text-white" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <p class="text-[#8fb3bb]/50 text-sm mb-1">© <span id="year"></span> AI Quiz Competition</p>
+        <p class="text-[#8fb3bb]/30 text-xs mt-2">Powered by</p>
+        <p class="font-display font-bold text-sm mt-1" style="color:#f87171">AAA COLLEGE OF ENGINEERING AND TECHNOLOGY</p>
+        <p class="text-[#8fb3bb]/50 text-xs mt-1">Department of Artificial Intelligence & Data Science</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API = window.API || 'http://localhost:3000/api';
+    let allData = [];
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function formatTime(seconds) {
+      if (!seconds) return '00:00';
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    }
+
+    const avatarColors = ['#0284c7','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#9333ea'];
+    function getAvatarColor(name) {
+      const i = (name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      return avatarColors[i % avatarColors.length];
+    }
+
+    function renderPodium(data) {
+      if (data.length < 1) return;
+      const top3 = data.slice(0, 3);
+      const names = ['p1','p2','p3'];
+      top3.forEach((s, i) => {
+        const id = names[i];
+        const avatarEl = document.getElementById(`${id}-avatar`);
+        avatarEl.textContent = getInitials(s.name);
+        avatarEl.style.background = getAvatarColor(s.name);
+        document.getElementById(`${id}-name`).textContent = s.name || '';
+        document.getElementById(`${id}-school`).textContent = s.school || '';
+        document.getElementById(`${id}-score`).textContent = `${s.score}/${s.total}`;
+      });
+      document.getElementById('podium').classList.remove('hidden');
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('table-body');
+      if (!data.length) {
+        const q = document.getElementById('search-input').value;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 text-sm">No results found${q ? ` for "<b>${q}</b>"` : ''}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map((s, i) => {
+        const rankCell = i === 0
+          ? `<div class="rank-badge rank-gold text-amber-800 mx-auto glow-gold">1</div>`
+          : i === 1
+          ? `<div class="rank-badge rank-silver text-gray-700 mx-auto">2</div>`
+          : i === 2
+          ? `<div class="rank-badge rank-bronze text-amber-900 mx-auto">3</div>`
+          : `<span class="font-display font-bold text-gray-400 text-sm">${i+1}</span>`;
+
+        const pct = s.total ? Math.round((s.score / s.total) * 100) : 0;
+
+        const rowBg = i % 2 === 0 ? 'rgba(6,47,54,0.6)' : 'rgba(2,20,23,0.8)';
+        return `
+        <tr class="table-row" style="background:${rowBg};border-bottom:1px solid rgba(63,208,230,0.1)">
+          <td class="p-4 text-center">${rankCell}</td>
+          <td class="p-4">
+            <div class="flex items-center gap-3">
+              <div class="avatar text-xs shrink-0" style="background:${getAvatarColor(s.name)}">${getInitials(s.name)}</div>
+              <div class="min-w-0">
+                <p class="font-semibold text-sm truncate" style="color:#ffffff">${s.name || ''}</p>
+                <div class="score-bar mt-1" style="width:${pct}%; max-width:80px"></div>
+              </div>
+            </div>
+          </td>
+          <td class="p-4 text-sm hidden sm:table-cell" style="color:#cbd5e1">${s.school || ''}</td>
+          <td class="p-4 text-right">
+            <span class="font-display font-bold" style="color:#ffffff">${s.score}</span>
+            <span class="text-xs" style="color:#3fd0e6">/${s.total}</span>
+          </td>
+          <td class="p-4 text-right font-mono text-xs hidden md:table-cell" style="color:#cbd5e1">${formatTime(s.timeTaken)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function filterTable() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      renderTable(allData.filter(s =>
+        (s.name || '').toLowerCase().includes(q) || (s.school || '').toLowerCase().includes(q)
+      ));
+    }
+
+    async function fetchLeaderboard() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API}/quiz/leaderboard`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        allData = await res.json();
+        renderPodium(allData);
+        filterTable();
+      } catch (_) {
+        document.getElementById('table-body').innerHTML =
+          '<tr><td colspan="5" class="p-10 text-center text-red-400 text-sm">Failed to load leaderboard. Please try again.</td></tr>';
+      }
+    }
+
+    async function refreshLeaderboard() {
+      const icon = document.getElementById('refresh-icon');
+      icon.classList.add('spin-anim');
+      await fetchLeaderboard();
+      setTimeout(() => icon.classList.remove('spin-anim'), 650);
+    }
+
+    // Reveal animations
+    function setupReveal() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), i * 120);
+          }
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    fetchLeaderboard();
+    setupReveal();
+  </script>
+</body>
+</html>

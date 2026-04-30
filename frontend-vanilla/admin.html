@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – AI Quiz 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ink: { DEFAULT: '#0d1117', 800: '#161b22', 700: '#1f2937' },
+            sky: { soft: '#e0f2fe', mid: '#7dd3fc', deep: '#0284c7' },
+            jade: { soft: '#dcfce7', mid: '#4ade80', deep: '#16a34a' },
+            amber: { soft: '#fef3c7', mid: '#fbbf24', deep: '#d97706' },
+            violet: { soft: '#ede9fe', mid: '#a78bfa', deep: '#7c3aed' },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; box-sizing: border-box; }
+    h1,h2,h3,.font-display { font-family: 'Syne', sans-serif; }
+
+    body { background: #f8fafc; min-height: 100vh; color: #1e293b; }
+
+    /* Card */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    /* Stat card hover */
+    .stat-card {
+      transition: box-shadow .2s ease, transform .2s ease;
+      cursor: default;
+    }
+    .stat-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+      transform: translateY(-2px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      width: 240px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Nav item */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #64748b;
+      transition: background .15s, color .15s;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: #f1f5f9; color: #1e293b; }
+    .nav-item.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+    .nav-item.active svg { stroke: #2563eb; }
+
+    /* Top bar */
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    /* Btn primary */
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s, transform .1s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* Btn outline */
+    .btn-outline {
+      background: #fff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s, border-color .15s;
+      text-decoration: none;
+    }
+    .btn-outline:hover { background: #f9fafb; border-color: #9ca3af; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #94a3b8;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .data-table td {
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      color: #374151;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: #f8fafc; }
+
+    /* Form inputs */
+    .form-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: #1e293b;
+      background: #fff;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+    /* Spinner */
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress bar */
+    .prog-bar {
+      height: 6px; border-radius: 99px;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      transition: width 1s ease;
+    }
+
+    /* Mobile sidebar */
+    #sidebar-overlay { display: none; }
+    #sidebar-overlay.show { display: block; }
+    #mobile-sidebar { transform: translateX(-100%); transition: transform .3s ease; }
+    #mobile-sidebar.open { transform: translateX(0); }
+
+    /* Reveal */
+    .reveal { opacity: 0; transform: translateY(16px); transition: opacity .4s ease, transform .4s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+    /* Chart wrapper */
+    .chart-wrap { position: relative; }
+
+    /* Section label */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #94a3b8;
+      padding: 0 14px;
+      margin-bottom: 4px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased overflow-x-hidden bg-slate-50">
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-[999] flex items-center justify-center bg-white">
+    <div class="text-center">
+      <div class="spinner mx-auto mb-3"></div>
+      <p class="text-slate-400 font-semibold text-sm tracking-wide">Loading dashboard…</p>
+    </div>
+  </div>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-black/40" onclick="closeSidebar()"></div>
+
+  <!-- Mobile Sidebar -->
+  <aside id="mobile-sidebar" class="fixed left-0 top-0 h-full w-60 z-50 sidebar flex flex-col md:hidden">
+    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="font-display font-bold text-slate-800 text-sm">Admin Portal</span>
+      </div>
+      <button onclick="closeSidebar()" class="text-slate-400 hover:text-slate-700 p-1 rounded">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <nav class="flex-grow p-3 space-y-0.5">
+      <a href="#" class="nav-item active">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Students
+      </a>
+      <a href="#" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Questions
+      </a>
+      <a href="#" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Leaderboard
+      </a>
+    </nav>
+    <div class="p-3 border-t border-slate-100">
+      <button onclick="logout()" class="nav-item w-full text-red-500 hover:bg-red-50">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Layout -->
+  <div id="dashboard" class="hidden relative z-10 flex min-h-screen">
+
+    <!-- Desktop Sidebar -->
+    <aside class="sidebar hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto shrink-0">
+      <div class="px-5 py-5 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+            <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <p class="font-display font-bold text-slate-800 text-sm leading-none">Admin Portal</p>
+            <p class="text-slate-400 text-xs mt-0.5">AI Quiz 2026</p>
+          </div>
+        </div>
+      </div>
+      <nav class="flex-grow p-3 space-y-0.5">
+        <p class="section-label">Main</p>
+        <a href="#" onclick="showTab('dashboard')" id="nav-dashboard" class="nav-item active">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Dashboard
+        </a>
+        <a href="#" onclick="showTab('students')" id="nav-students" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Students
+        </a>
+        <a href="#" onclick="showTab('questions')" id="nav-questions" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Questions
+        </a>
+        <a href="#" onclick="showTab('leaderboard')" id="nav-leaderboard" class="nav-item">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Leaderboard
+        </a>
+      </nav>
+      <div class="p-3 border-t border-slate-100">
+        <button onclick="logout()" class="nav-item w-full text-red-500 hover:bg-red-50">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow overflow-y-auto">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <div class="flex items-center gap-3">
+          <button onclick="openSidebar()" class="md:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div>
+            <h1 id="topbar-title" class="font-display font-bold text-base text-slate-800 leading-none">Dashboard</h1>
+            <p class="text-slate-400 text-xs mt-0.5 hidden sm:block">Live stats · auto-refreshes every 15s</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="fetchData()" class="btn-outline">
+            <svg id="refresh-spin" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="transition:transform .6s"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-5 sm:p-6">
+
+      <!-- Live pulse indicator -->
+      <div id="tab-dashboard">
+      <div class="flex items-center gap-2 mb-5 reveal">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
+        <span class="text-xs text-slate-400 font-medium">Live · Last updated just now</span>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5 reveal">
+
+        <div class="stat-card card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span class="badge bg-blue-50 text-blue-600">Total</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium mb-1">Total Registered</p>
+          <p id="stat-total" class="font-display font-bold text-2xl text-slate-800">--</p>
+        </div>
+
+        <div class="stat-card card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+              <svg width="20" height="20" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <span class="badge bg-green-50 text-green-600">Active</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium mb-1">Approved</p>
+          <p id="stat-approved" class="font-display font-bold text-2xl text-slate-800">--</p>
+        </div>
+
+        <div class="stat-card card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <span class="badge bg-violet-50 text-violet-600">Done</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium mb-1">Submitted</p>
+          <p id="stat-attempts" class="font-display font-bold text-2xl text-slate-800">--</p>
+        </div>
+
+        <div class="stat-card card p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
+              <svg width="20" height="20" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <span class="badge bg-amber-50 text-amber-600">Score</span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium mb-1">Avg Score</p>
+          <p id="stat-avg" class="font-display font-bold text-2xl text-slate-800">--</p>
+        </div>
+      </div>
+
+      <!-- Live Metrics Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 reveal">
+
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-11 h-11 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Currently Active</p>
+            <p id="live-active" class="font-display font-bold text-2xl text-green-600">--</p>
+          </div>
+        </div>
+
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-11 h-11 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div>
+            <p class="text-xs text-slate-400 font-medium">Highest Score</p>
+            <p id="stat-highest" class="font-display font-bold text-2xl text-blue-600">--</p>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-slate-400 font-medium">Completion Rate</p>
+            <p id="stat-completion" class="font-display font-bold text-base text-blue-600">--%</p>
+          </div>
+          <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div id="completion-bar" class="prog-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5 reveal">
+        <div class="lg:col-span-2 card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-display font-semibold text-slate-800 text-sm">Question Accuracy</h3>
+            <span class="badge bg-blue-50 text-blue-600">Top 10</span>
+          </div>
+          <div class="chart-wrap" style="height:210px">
+            <canvas id="bar-chart"></canvas>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-display font-semibold text-slate-800 text-sm mb-4">Participation</h3>
+          <div class="chart-wrap mx-auto" style="height:150px;max-width:170px">
+            <canvas id="pie-chart"></canvas>
+          </div>
+          <div id="pie-legend" class="flex flex-col gap-2 mt-4"></div>
+        </div>
+      </div>
+
+      <!-- Quiz Control Card -->
+      <div class="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5 reveal" id="quiz-control-card">
+        <div class="flex items-center gap-3">
+          <div id="quiz-status-dot" class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#475569" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 text-sm">Quiz Control</p>
+            <p id="quiz-status-text" class="text-xs text-slate-400 mt-0.5">Checking status…</p>
+          </div>
+        </div>
+        <div class="flex gap-2 shrink-0">
+          <button id="btn-start-quiz" onclick="controlQuiz('start')" class="btn-primary" style="background:#16a34a" disabled>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
+            Start Quiz
+          </button>
+          <button id="btn-stop-quiz" onclick="controlQuiz('stop')" class="btn-outline" style="color:#ef4444;border-color:#fca5a5" disabled>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
+            Stop Quiz
+          </button>
+        </div>
+      </div>
+
+      <!-- Export Card -->
+      <div class="card p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 reveal">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+            <svg width="18" height="18" fill="none" stroke="#475569" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 text-sm">Export Results</p>
+            <p class="text-xs text-slate-400 mt-0.5">Download all submitted results as Excel</p>
+          </div>
+        </div>
+        <a id="export-link" href="http://localhost:3000/api/admin/export" target="_blank" rel="noreferrer" class="btn-primary shrink-0">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export .xlsx
+        </a>
+      </div>
+      </div><!-- end tab-dashboard -->
+
+    <!-- ── STUDENTS TAB ── -->
+    <div id="tab-students" class="hidden">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="font-display font-bold text-lg text-slate-800">Student Management</h2>
+        <div class="flex gap-2">
+          <button onclick="loadStudents('pending')" id="btn-pending" class="btn-primary">Pending</button>
+          <button onclick="loadStudents('approved')" id="btn-approved" class="btn-outline">Approved</button>
+          <button onclick="loadStudents('rejected')" id="btn-rejected" class="btn-outline">Rejected</button>
+        </div>
+      </div>
+      <div id="students-list" class="card overflow-hidden">
+        <div class="p-10 text-center"><div class="spinner inline-block"></div></div>
+      </div>
+    </div>
+
+    <!-- ── QUESTIONS TAB ── -->
+    <div id="tab-questions" class="hidden">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="font-display font-bold text-lg text-slate-800">Question Bank</h2>
+        <button onclick="document.getElementById('add-q-form').classList.toggle('hidden')" class="btn-primary">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Question
+        </button>
+      </div>
+      <div id="add-q-form" class="hidden card p-5 mb-4">
+        <h3 class="font-display font-semibold text-slate-800 text-sm mb-4">New Question</h3>
+        <div class="space-y-3">
+          <textarea id="q-text" rows="2" placeholder="Question text" class="form-input resize-none"></textarea>
+          <div class="grid grid-cols-2 gap-3">
+            <input id="q-opt0" type="text" placeholder="Option A" class="form-input"/>
+            <input id="q-opt1" type="text" placeholder="Option B" class="form-input"/>
+            <input id="q-opt2" type="text" placeholder="Option C" class="form-input"/>
+            <input id="q-opt3" type="text" placeholder="Option D" class="form-input"/>
+          </div>
+          <div class="flex gap-3 items-center flex-wrap">
+            <label class="text-sm text-slate-600 font-medium">Correct:</label>
+            <select id="q-correct" class="form-input" style="width:auto">
+              <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option>
+            </select>
+            <input id="q-topic" type="text" placeholder="Topic (e.g. ML)" class="form-input flex-1"/>
+            <button onclick="addQuestion()" class="btn-primary">Save</button>
+          </div>
+          <p id="q-msg" class="text-sm hidden"></p>
+        </div>
+      </div>
+      <div id="questions-list" class="card overflow-hidden">
+        <div class="p-10 text-center"><div class="spinner inline-block"></div></div>
+      </div>
+    </div>
+
+    <!-- ── LEADERBOARD TAB ── -->
+    <div id="tab-leaderboard" class="hidden">
+      <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div>
+          <h2 class="font-display font-bold text-lg text-slate-800">🏆 Leaderboard</h2>
+          <p class="text-slate-400 text-xs mt-0.5">Ranked by score, then fastest time</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="loadLeaderboard()" class="btn-outline">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            Refresh
+          </button>
+          <a id="lb-export" href="http://localhost:3000/api/admin/export" target="_blank" class="btn-primary">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export .xlsx
+          </a>
+        </div>
+      </div>
+
+      <div id="lb-podium" class="hidden mb-4">
+        <div class="card p-5">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Top 3 Winners</p>
+          <div class="flex items-end justify-center gap-4">
+            <div id="pod-2" class="flex flex-col items-center gap-1.5 flex-1">
+              <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">2</div>
+              <p id="pod-2-name" class="font-semibold text-slate-800 text-xs text-center truncate w-full"></p>
+              <p id="pod-2-score" class="font-display font-bold text-lg text-slate-600"></p>
+              <p id="pod-2-time" class="text-xs text-slate-400"></p>
+              <div class="w-full h-14 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center"><span class="text-xl">🥈</span></div>
+            </div>
+            <div id="pod-1" class="flex flex-col items-center gap-1.5 flex-1">
+              <div class="text-2xl mb-1">🏆</div>
+              <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center font-bold text-amber-600">1</div>
+              <p id="pod-1-name" class="font-semibold text-slate-800 text-xs text-center truncate w-full"></p>
+              <p id="pod-1-score" class="font-display font-bold text-xl text-amber-600"></p>
+              <p id="pod-1-time" class="text-xs text-slate-400"></p>
+              <div class="w-full h-20 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center"><span class="text-2xl">👑</span></div>
+            </div>
+            <div id="pod-3" class="flex flex-col items-center gap-1.5 flex-1">
+              <div class="w-9 h-9 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center font-bold text-orange-600">3</div>
+              <p id="pod-3-name" class="font-semibold text-slate-800 text-xs text-center truncate w-full"></p>
+              <p id="pod-3-score" class="font-display font-bold text-lg text-orange-600"></p>
+              <p id="pod-3-time" class="text-xs text-slate-400"></p>
+              <div class="w-full h-9 rounded-lg bg-orange-50 flex items-center justify-center"><span class="text-xl">🥉</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="lb-list" class="card overflow-hidden">
+        <div class="p-10 text-center"><div class="spinner inline-block"></div></div>
+      </div>
+    </div>
+
+    </div><!-- end p-5 wrapper -->
+    </main>
+  </div>
+
+  <script>
+    const API = window.API || 'http://localhost:3000/api';
+    let barChart, pieChart;
+
+    function authHeaders() {
+      const token = localStorage.getItem('token');
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+
+    function toggleTheme() {
+      const dark = document.body.classList.toggle('dark-mode');
+      document.documentElement.classList.toggle('dark', dark);
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      document.getElementById('icon-sun').classList.toggle('hidden', dark);
+      document.getElementById('icon-moon').classList.toggle('hidden', !dark);
+    }
+    (function() {
+      const dark = localStorage.getItem('theme') === 'dark';
+      if (dark) { document.body.classList.add('dark-mode'); document.documentElement.classList.add('dark'); }
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('icon-sun').classList.toggle('hidden', dark);
+        document.getElementById('icon-moon').classList.toggle('hidden', !dark);
+      });
+    })();
+
+    function openSidebar() {
+      document.getElementById('mobile-sidebar').classList.add('open');
+      document.getElementById('sidebar-overlay').classList.add('show');
+    }
+    function closeSidebar() {
+      document.getElementById('mobile-sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('show');
+    }
+
+    async function fetchData() {
+      const icon = document.getElementById('refresh-spin');
+      icon.style.transform = 'rotate(360deg)';
+      setTimeout(() => { icon.style.transform = 'rotate(0deg)'; icon.style.transition = 'none'; setTimeout(() => icon.style.transition = 'transform .6s', 50); }, 650);
+
+      try {
+        const [sRes, lRes, qRes] = await Promise.all([
+          fetch(`${API}/admin/stats`, { headers: authHeaders() }),
+          fetch(`${API}/admin/live`, { headers: authHeaders() }),
+          fetch(`${API}/admin/question-stats`, { headers: authHeaders() })
+        ]);
+        if (sRes.status === 401 || sRes.status === 403) { logout(); return; }
+
+        const stats = await sRes.json();
+        const live = await lRes.json();
+        const qStats = await qRes.json();
+
+        document.getElementById('stat-total').textContent = stats.totalStudents ?? '--';
+        document.getElementById('stat-approved').textContent = stats.approved ?? '--';
+        document.getElementById('stat-attempts').textContent = stats.totalAttempts ?? '--';
+        document.getElementById('stat-avg').textContent = stats.avgScore ?? '--';
+        document.getElementById('live-active').textContent = live.active ?? '--';
+        document.getElementById('stat-highest').textContent = stats.highestScore ?? '--';
+        const rate = stats.completionRate ?? 0;
+        document.getElementById('stat-completion').textContent = `${rate}%`;
+        document.getElementById('completion-bar').style.width = `${rate}%`;
+
+        // Bar chart
+        const labels = qStats.slice(0, 10).map(q => q.topic);
+        const values = qStats.slice(0, 10).map(q => q.accuracy);
+        if (barChart) barChart.destroy();
+        barChart = new Chart(document.getElementById('bar-chart'), {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Accuracy %', data: values,
+              backgroundColor: labels.map((_, i) => `hsl(${200 + i * 8}, 80%, ${55 - i * 2}%)`),
+              borderRadius: 8, borderSkipped: false
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { max: 100, ticks: { callback: v => `${v}%`, font: { family: 'DM Sans' } }, grid: { color: 'rgba(0,0,0,.05)' } },
+              x: { ticks: { font: { family: 'DM Sans', size: 11 } }, grid: { display: false } }
+            }
+          }
+        });
+
+        // Pie chart
+        const notStarted = Math.max(0, (stats.approved || 0) - (live.submitted || 0) - (live.active || 0));
+        const pieData = [live.submitted || 0, live.active || 0, notStarted];
+        const pieLabels = ['Submitted', 'In Progress', 'Not Started'];
+        const pieColors = ['#16a34a', '#f59e0b', '#ef4444'];
+        if (pieChart) pieChart.destroy();
+        pieChart = new Chart(document.getElementById('pie-chart'), {
+          type: 'doughnut',
+          data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: pieColors, borderWidth: 3, borderColor: 'rgba(255,255,255,0.8)', hoverOffset: 6 }] },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            cutout: '68%'
+          }
+        });
+
+        document.getElementById('pie-legend').innerHTML = pieLabels.map((l, i) =>
+          `<div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-2.5 h-2.5 rounded-full" style="background:${pieColors[i]}"></div>
+              <span class="text-gray-600">${l}</span>
+            </div>
+            <span class="font-semibold text-gray-900">${pieData[i]}</span>
+          </div>`).join('');
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Reveal animations
+    function setupReveal() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), i * 100);
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // Auth guard
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user || user.role !== 'admin') {
+      window.location.href = 'index.html';
+    } else {
+      fetchData().then(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('dashboard').classList.remove('hidden');
+        setupReveal();
+        loadQuizStatus();
+      });
+      setInterval(() => {
+        fetch(`${API}/admin/live`, { headers: authHeaders() })
+          .then(r => r.json())
+          .then(l => { document.getElementById('live-active').textContent = l.active ?? '--'; })
+          .catch(() => {});
+      }, 15000);
+    }
+
+    // ── TAB SWITCHING ──────────────────────────────────────────────
+    const TABS = ['dashboard', 'students', 'questions', 'leaderboard'];
+    function showTab(name) {
+      TABS.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
+        const nav = document.getElementById(`nav-${t}`);
+        if (nav) {
+          nav.classList.toggle('active', t === name);
+          nav.classList.toggle('text-sky-deep', t === name);
+          nav.classList.toggle('text-gray-500', t !== name);
+        }
+      });
+      if (name === 'students') loadStudents('pending');
+      if (name === 'questions') loadQuestions();
+      if (name === 'leaderboard') loadLeaderboard();
+    }
+
+    // ── QUIZ CONTROL ───────────────────────────────────────────────
+    async function loadQuizStatus() {
+      try {
+        const res = await fetch(`${API}/quiz/status`);
+        const data = await res.json();
+        updateQuizControlUI(data.quizStarted);
+      } catch (_) {}
+    }
+
+    function updateQuizControlUI(started) {
+      const dot = document.getElementById('quiz-status-dot');
+      const text = document.getElementById('quiz-status-text');
+      const btnStart = document.getElementById('btn-start-quiz');
+      const btnStop = document.getElementById('btn-stop-quiz');
+      if (started) {
+        dot.style.background = '#dcfce7';
+        dot.innerHTML = '<svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>';
+        text.textContent = 'Quiz is LIVE — students can now take the quiz';
+        text.style.color = '#16a34a';
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+      } else {
+        dot.style.background = '#fee2e2';
+        dot.innerHTML = '<svg width="18" height="18" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>';
+        text.textContent = 'Quiz is STOPPED — students are waiting in lobby';
+        text.style.color = '#ef4444';
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+      }
+    }
+
+    async function controlQuiz(action) {
+      const btnStart = document.getElementById('btn-start-quiz');
+      const btnStop = document.getElementById('btn-stop-quiz');
+      btnStart.disabled = true;
+      btnStop.disabled = true;
+      try {
+        const res = await fetch(`${API}/admin/quiz/${action}`, {
+          method: 'POST', headers: authHeaders()
+        });
+        const data = await res.json();
+        updateQuizControlUI(data.quizStarted);
+      } catch (_) {
+        btnStart.disabled = false;
+        btnStop.disabled = false;
+      }
+    }
+
+    // ── STUDENTS ───────────────────────────────────────────────────
+    async function loadStudents(status = 'pending') {
+      ['pending','approved','rejected'].forEach(s => {
+        const btn = document.getElementById(`btn-${s}`);
+        if (btn) btn.className = s === status
+          ? 'px-4 py-2 rounded-xl text-sm font-semibold bg-amber-100 text-amber-700 border border-amber-200 active:scale-95 transition-all'
+          : 'px-4 py-2 rounded-xl text-sm font-semibold glass text-gray-600 active:scale-95 transition-all';
+      });
+      const el = document.getElementById('students-list');
+      el.innerHTML = '<div class="p-10 text-center"><div class="spinner inline-block"></div></div>';
+      try {
+        const res = await fetch(`${API}/admin/students?status=${status}`, { headers: authHeaders() });
+        const students = await res.json();
+        if (!students.length) {
+          el.innerHTML = `<div class="p-10 text-center text-gray-400 text-sm">No ${status} students</div>`;
+          return;
+        }
+        el.innerHTML = `<div class="overflow-x-auto"><table class="w-full text-left">
+          <thead><tr class="bg-gray-50 border-b border-gray-200">
+            <th class="p-4 text-xs font-semibold text-gray-500">Name</th>
+            <th class="p-4 text-xs font-semibold text-gray-500">Email</th>
+            <th class="p-4 text-xs font-semibold text-gray-500 hidden sm:table-cell">School</th>
+            <th class="p-4 text-xs font-semibold text-gray-500 hidden md:table-cell">Phone</th>
+            <th class="p-4 text-xs font-semibold text-gray-500">ID Card</th>
+            <th class="p-4 text-xs font-semibold text-gray-500">Action</th>
+          </tr></thead>
+          <tbody>${students.map(s => {
+            const imgPath = s.markSheetPath ? s.markSheetPath.replace(/\\/g,'/') : null;
+            const imgUrl  = imgPath ? `http://localhost:3000/${imgPath.replace(/^.*uploads\//, 'uploads/')}` : null;
+            const ext     = imgPath ? imgPath.split('.').pop().toLowerCase() : '';
+            const isImg   = ['jpg','jpeg','png','webp'].includes(ext);
+            return `
+            <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors" id="row-${s._id}">
+              <td class="p-4 font-medium text-gray-900 text-sm">${s.fullName}</td>
+              <td class="p-4 text-gray-500 text-sm">${s.email}</td>
+              <td class="p-4 text-gray-500 text-sm hidden sm:table-cell">${s.schoolName}</td>
+              <td class="p-4 text-gray-500 text-sm hidden md:table-cell">${s.phone}</td>
+              <td class="p-4">
+                ${imgUrl && isImg
+                  ? `<img src="${imgUrl}" alt="ID" onclick="openImgModal('${imgUrl}','${s._id}')" class="w-14 h-14 object-cover rounded-xl border-2 border-gray-200 cursor-pointer hover:border-sky-400 hover:scale-105 transition-all shadow" title="Click to verify"/>`
+                  : imgUrl
+                  ? `<a href="${imgUrl}" target="_blank" class="text-sky-deep text-xs underline">View PDF</a>`
+                  : '<span class="text-gray-300 text-xs">—</span>'}
+              </td>
+              <td class="p-4">
+                ${status === 'pending' ? `
+                  <div class="flex flex-col gap-1.5">
+                    <div class="flex gap-2">
+                      <button onclick="approveStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 active:scale-95 transition-all">✓ Approve</button>
+                      <button onclick="rejectStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 active:scale-95 transition-all">✗ Reject</button>
+                    </div>
+                    ${imgUrl && isImg ? `<button onclick="openImgModal('${imgUrl}','${s._id}')" class="px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 text-xs font-semibold hover:bg-sky-200 active:scale-95 transition-all">🔍 Verify ID</button>` : ''}
+                  </div>`
+                  : `<span class="px-3 py-1 rounded-full text-xs font-semibold ${status==='approved'?'bg-green-100 text-green-700':'bg-red-100 text-red-600'}">${status}</span>`}
+              </td>
+            </tr>`;
+          }).join('')}
+          </tbody></table></div>`;
+      } catch (err) {
+        el.innerHTML = '<div class="p-10 text-center text-red-400 text-sm">Failed to load students</div>';
+      }
+    }
+
+    // ── ID CARD MODAL ──────────────────────────────────────────────
+    function openImgModal(imgUrl, studentId) {
+      document.getElementById('modal-img').src = imgUrl;
+      document.getElementById('modal-img').onload = () => checkIdCard(imgUrl, studentId);
+      document.getElementById('modal-student-id').value = studentId;
+      document.getElementById('modal-verdict').innerHTML = '<span class="text-gray-400 text-sm">Analyzing ID card…</span>';
+      document.getElementById('img-modal').style.display = 'flex';
+    }
+
+    function closeImgModal() {
+      document.getElementById('img-modal').style.display = 'none';
+      document.getElementById('modal-img').src = '';
+    }
+
+    function checkIdCard(imgUrl, studentId) {
+      // Since we can't do real OCR in browser, we check the student's registered school name
+      // and show the image for admin to visually verify, with smart approve/reject buttons
+      const rows = document.querySelectorAll(`#row-${studentId} td`);
+      const schoolName = rows[2] ? rows[2].textContent.trim().toLowerCase() : '';
+
+      // Keywords that indicate a valid 12th grade ID
+      const keywords12 = ['xii', '12th', '12 th', 'class 12', 'hsc', 'higher secondary', 'senior secondary', '+2', 'plus two', 'std 12', 'std. 12'];
+      const schoolKeywords = ['school', 'college', 'academy', 'institution', 'vidyalaya', 'matriculation', 'hr.sec', 'higher sec', 'mat. hr. sec', 'higher secondary school'];
+
+      const hasSchool = schoolKeywords.some(k => schoolName.includes(k));
+      const has12th   = keywords12.some(k => schoolName.includes(k));
+
+      const verdictEl = document.getElementById('modal-verdict');
+      if (hasSchool) {
+        verdictEl.innerHTML = `
+          <div class="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200">
+            <span class="text-green-600 text-lg">✅</span>
+            <div>
+              <p class="text-green-700 font-semibold text-sm">Registered as a school student</p>
+              <p class="text-green-600 text-xs mt-0.5">Visually confirm <strong>XII / 12th</strong> is visible in the ID card above before approving</p>
+            </div>
+          </div>`;
+      } else {
+        verdictEl.innerHTML = `
+          <div class="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+            <span class="text-red-500 text-lg">❌</span>
+            <div>
+              <p class="text-red-700 font-semibold text-sm">Not a school-level registration</p>
+              <p class="text-red-600 text-xs mt-0.5">Only 12th standard school students are eligible. Reject if ID does not show School + XII/12th.</p>
+            </div>
+          </div>`;
+      }
+    }
+
+    function modalApprove() {
+      const id = document.getElementById('modal-student-id').value;
+      approveStudent(id);
+      closeImgModal();
+    }
+    function modalReject() {
+      const id = document.getElementById('modal-student-id').value;
+      rejectStudent(id);
+      closeImgModal();
+    }
+
+    async function approveStudent(id) {
+      await fetch(`${API}/admin/students/${id}/approve`, { method: 'PATCH', headers: authHeaders() });
+      document.getElementById(`row-${id}`)?.remove();
+    }
+    async function rejectStudent(id) {
+      await fetch(`${API}/admin/students/${id}/reject`, { method: 'PATCH', headers: authHeaders() });
+      document.getElementById(`row-${id}`)?.remove();
+    }
+
+    // ── LEADERBOARD ───────────────────────────────────────────────────
+    function fmtTime(s) {
+      if (!s) return '—';
+      const m = Math.floor(s / 60).toString().padStart(2,'0');
+      const sec = (s % 60).toString().padStart(2,'0');
+      return `${m}m ${sec}s`;
+    }
+
+    async function loadLeaderboard() {
+      const el = document.getElementById('lb-list');
+      el.innerHTML = '<div class="p-10 text-center"><div class="spinner inline-block"></div></div>';
+      try {
+        const res = await fetch(`${API}/quiz/leaderboard`, { headers: authHeaders() });
+        const data = await res.json();
+
+        if (!data.length) {
+          document.getElementById('lb-podium').classList.add('hidden');
+          el.innerHTML = '<div class="p-10 text-center text-gray-400 text-sm">No submissions yet</div>';
+          return;
+        }
+
+        // Podium top 3
+        const podium = document.getElementById('lb-podium');
+        podium.classList.remove('hidden');
+        [1,2,3].forEach(rank => {
+          const s = data[rank-1];
+          if (!s) { document.getElementById(`pod-${rank}`).style.display = 'none'; return; }
+          document.getElementById(`pod-${rank}-name`).textContent  = s.name;
+          document.getElementById(`pod-${rank}-score`).textContent = `${s.score}/${s.total}`;
+          document.getElementById(`pod-${rank}-time`).textContent  = `⏱ ${fmtTime(s.timeTaken)}`;
+        });
+
+        // Full table
+        const medals = ['🥇','🥈','🥉'];
+        el.innerHTML = `
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th class="p-4 text-xs font-semibold text-gray-500 w-16">Rank</th>
+                  <th class="p-4 text-xs font-semibold text-gray-500">Student</th>
+                  <th class="p-4 text-xs font-semibold text-gray-500 hidden sm:table-cell">School</th>
+                  <th class="p-4 text-xs font-semibold text-gray-500 text-right">Score</th>
+                  <th class="p-4 text-xs font-semibold text-gray-500 text-right">⏱ Time</th>
+                  <th class="p-4 text-xs font-semibold text-gray-500 text-right hidden md:table-cell">Submitted At</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map((s, i) => {
+                  const rankBadge = i < 3
+                    ? `<span class="text-xl">${medals[i]}</span>`
+                    : `<span class="font-display font-bold text-gray-400">${i+1}</span>`;
+                  const rowBg = i === 0 ? 'background:rgba(251,191,36,0.06)' : i === 1 ? 'background:rgba(148,163,184,0.06)' : i === 2 ? 'background:rgba(205,124,57,0.06)' : '';
+                  const pct = s.total ? Math.round((s.score/s.total)*100) : 0;
+                  const submittedAt = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : '—';
+                  return `
+                  <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors" style="${rowBg}">
+                    <td class="p-4 text-center">${rankBadge}</td>
+                    <td class="p-4">
+                      <p class="font-semibold text-gray-900 text-sm">${s.name}</p>
+                      <div class="w-24 h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                        <div class="h-full rounded-full" style="width:${pct}%;background:linear-gradient(90deg,#16a34a,#4ade80)"></div>
+                      </div>
+                    </td>
+                    <td class="p-4 text-gray-500 text-sm hidden sm:table-cell">${s.school || '—'}</td>
+                    <td class="p-4 text-right">
+                      <span class="font-display font-bold text-gray-900">${s.score}</span>
+                      <span class="text-gray-400 text-xs">/${s.total}</span>
+                    </td>
+                    <td class="p-4 text-right">
+                      <span class="font-mono text-sm font-semibold ${i===0?'text-amber-600':i===1?'text-gray-500':i===2?'text-orange-500':'text-gray-700'}">${fmtTime(s.timeTaken)}</span>
+                    </td>
+                    <td class="p-4 text-right text-gray-400 text-xs hidden md:table-cell">${submittedAt}</td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      } catch (err) {
+        el.innerHTML = '<div class="p-10 text-center text-red-400 text-sm">Failed to load leaderboard</div>';
+      }
+    }
+
+    // ── QUESTIONS ──────────────────────────────────────────────────
+    async function loadQuestions() {
+      const el = document.getElementById('questions-list');
+      el.innerHTML = '<div class="p-10 text-center"><div class="spinner inline-block"></div></div>';
+      try {
+        const res = await fetch(`${API}/admin/questions`, { headers: authHeaders() });
+        const qs = await res.json();
+        if (!qs.length) {
+          el.innerHTML = '<div class="p-10 text-center text-gray-400 text-sm">No questions yet. Add one above.</div>';
+          return;
+        }
+        const letters = ['A','B','C','D'];
+        el.innerHTML = `<div class="divide-y divide-gray-100">${qs.map((q,i) => `
+          <div class="p-5 flex items-start justify-between gap-4" id="qrow-${q._id}">
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-900 text-sm mb-2">${i+1}. ${q.questionText}</p>
+              <div class="flex flex-wrap gap-2">${q.options.map((o,j) => `
+                <span class="px-2.5 py-1 rounded-lg text-xs ${j===q.correctIndex?'bg-green-100 text-green-700 font-semibold':'bg-gray-100 text-gray-500'}">${letters[j]}: ${o}</span>`).join('')}
+              </div>
+              <span class="mt-2 inline-block text-xs text-gray-400">${q.topic || ''} · ${q.difficulty || ''}</span>
+            </div>
+            <button onclick="deleteQuestion('${q._id}')" class="shrink-0 p-2 rounded-lg text-red-400 hover:bg-red-50 active:scale-95 transition-all">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>`).join('')}</div>`;
+      } catch (err) {
+        el.innerHTML = '<div class="p-10 text-center text-red-400 text-sm">Failed to load questions</div>';
+      }
+    }
+
+    async function addQuestion() {
+      const msg = document.getElementById('q-msg');
+      const body = {
+        questionText: document.getElementById('q-text').value.trim(),
+        options: [0,1,2,3].map(i => document.getElementById(`q-opt${i}`).value.trim()),
+        correctIndex: parseInt(document.getElementById('q-correct').value),
+        topic: document.getElementById('q-topic').value.trim() || 'General',
+      };
+      if (!body.questionText || body.options.some(o => !o)) {
+        msg.textContent = 'Fill in all fields.'; msg.className = 'text-sm text-red-500'; msg.classList.remove('hidden'); return;
+      }
+      try {
+        const res = await fetch(`${API}/admin/questions`, {
+          method: 'POST', headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error();
+        msg.textContent = 'Question added!'; msg.className = 'text-sm text-green-600'; msg.classList.remove('hidden');
+        ['q-text','q-opt0','q-opt1','q-opt2','q-opt3','q-topic'].forEach(id => document.getElementById(id).value = '');
+        setTimeout(() => msg.classList.add('hidden'), 2000);
+        loadQuestions();
+      } catch { msg.textContent = 'Failed to add.'; msg.className = 'text-sm text-red-500'; msg.classList.remove('hidden'); }
+    }
+
+    async function deleteQuestion(id) {
+      if (!confirm('Delete this question?')) return;
+      await fetch(`${API}/admin/questions/${id}`, { method: 'DELETE', headers: authHeaders() });
+      document.getElementById(`qrow-${id}`)?.remove();
+    }
+  </script>
+  <!-- ID Card Verify Modal -->
+  <div id="img-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px)" onclick="if(event.target===this)closeImgModal()">
+    <div class="glass rounded-2xl w-full max-w-lg overflow-hidden" style="max-height:90vh;display:flex;flex-direction:column">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div>
+          <h3 class="font-display font-bold text-gray-900">Verify ID Card</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Check for School name and XII / 12th class</p>
+        </div>
+        <button onclick="closeImgModal()" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <!-- Image -->
+      <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-50" style="min-height:300px">
+        <img id="modal-img" src="" alt="ID Card" style="max-width:100%;max-height:60vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2)"/>
+      </div>
+      <!-- Verdict -->
+      <div class="p-4 border-t border-gray-100">
+        <div id="modal-verdict" class="mb-4"></div>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4">
+          <p class="text-blue-700 text-xs font-semibold mb-1">🔍 Eligibility — Only approve if ALL are true:</p>
+          <ul class="text-blue-600 text-xs space-y-0.5">
+            <li>✅ ID card shows a <strong>School</strong> (not college/university)</li>
+            <li>✅ Class <strong>XII or 12th</strong> is clearly mentioned</li>
+            <li>✅ Student name matches the registration name</li>
+            <li>❌ Reject if it shows college, degree, or non-school institution</li>
+          </ul>
+        </div>
+        <input type="hidden" id="modal-student-id"/>
+        <div class="flex gap-3">
+          <button onclick="modalReject()" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 active:scale-95 transition-all">✗ Reject</button>
+          <button onclick="modalApprove()" class="flex-1 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 active:scale-95 transition-all">✓ Approve for Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
