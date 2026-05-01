@@ -27,6 +27,17 @@ const upload = multer({
   },
 });
 
+// ── Test mail ────────────────────────────────────────────────────────────────
+router.get('/test-mail', async (req, res) => {
+  try {
+    const { sendOtpEmail } = require('../utils/mailer');
+    await sendOtpEmail(process.env.MAIL_USER, '123456');
+    res.json({ message: 'Test email sent successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message, stack: err.stack });
+  }
+});
+
 // ── Auth ─────────────────────────────────────────────────────────────────────
 router.post('/auth/register', upload.single('markSheet'), register);
 router.post('/auth/send-otp', sendOtp);
