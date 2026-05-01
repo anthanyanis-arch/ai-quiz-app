@@ -32,9 +32,9 @@ router.get('/test-mail', async (req, res) => {
   try {
     const { sendOtpEmail } = require('../utils/mailer');
     await sendOtpEmail(process.env.MAIL_USER, '123456');
-    res.json({ message: 'Test email sent successfully' });
+    res.json({ message: 'Test email sent successfully to ' + process.env.MAIL_USER });
   } catch (err) {
-    res.status(500).json({ message: err.message, stack: err.stack });
+    res.status(500).json({ message: err.message });
   }
 });
 
