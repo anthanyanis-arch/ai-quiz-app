@@ -29,10 +29,7 @@ app.use((req, res, next) => {
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: [
-    'https://your-netlify-app.netlify.app',
-    'http://localhost:3000'
-  ],
+  origin: (origin, cb) => cb(null, true),
   credentials: true
 }));
 app.use(express.json());
