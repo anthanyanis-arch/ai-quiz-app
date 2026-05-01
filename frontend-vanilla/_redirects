@@ -1,1 +1,8 @@
-/* /index.html 200
+/login        /login.html       200
+/register     /register.html    200
+/quiz         /quiz.html        200
+/admin        /admin.html       200
+/leaderboard  /leaderboard.html 200
+/submitted    /submitted.html   200
+/success      /success.html     200
+/instructions /instructions.html 200
