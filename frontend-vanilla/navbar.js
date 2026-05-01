@@ -24,10 +24,10 @@
     }
     .nb-inner {
       max-width: 1280px; margin: 0 auto;
-      padding: 0 20px; height: 64px;
+      padding: 0 20px; min-height: 64px;
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-    .nb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+    .nb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; max-width: calc(100% - 60px); }
     .nb-logo-icon {
       width: 38px; height: 38px; border-radius: 12px;
       background: linear-gradient(135deg, #0e7490 0%, #3fd0e6 100%);
@@ -37,8 +37,8 @@
       flex-shrink: 0;
     }
     .nb-logo:hover .nb-logo-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 24px rgba(63,208,230,0.35); }
-    .nb-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-    .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: #d9f3f7; letter-spacing: -0.01em; line-height: 1.2; }
+    .nb-logo-text { display: flex; flex-direction: column; line-height: 1.3; }
+    .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #d9f3f7; letter-spacing: -0.01em; line-height: 1.3; word-break: break-word; }
     .nb-logo-sub { font-size: 10px; color: #3fd0e6; letter-spacing: 0.06em; font-weight: 600; }
     .nb-links { display: flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 0; }
     .nb-link {
@@ -129,8 +129,18 @@
       box-shadow: 0 4px 16px rgba(63,208,230,0.18); transition: all 0.25s ease;
     }
     .nb-drawer-cta:hover { box-shadow: 0 8px 28px rgba(63,208,230,0.28); }
-    @media (max-width: 767px) { .nb-links { display: none; } .nb-cta { display: none; } .nb-ham { display: flex; } .nb-logo-sub { display: none; } .nb-logo-title { font-size: 12px; } }
-    @media (max-width: 380px) { .nb-logo-title { font-size: 11px; } .nb-logo-icon { width: 30px; height: 30px; } }
+    @media (max-width: 767px) {
+      .nb-links { display: none !important; }
+      .nb-cta { display: none !important; }
+      .nb-logout { display: none !important; }
+      .nb-ham { display: flex !important; }
+      .nb-logo-sub { display: none; }
+      .nb-inner { padding: 10px 16px; justify-content: space-between; }
+      .nb-logo { flex: 1; justify-content: center; }
+      .nb-actions { position: absolute; right: 16px; }
+      #nb-root { position: relative; }
+    }
+    @media (max-width: 380px) { .nb-logo-title { font-size: 12px; } .nb-logo-icon { width: 30px; height: 30px; } }
   `;
 
   function buildNavbar() {
