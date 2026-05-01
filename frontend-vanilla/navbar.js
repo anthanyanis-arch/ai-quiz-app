@@ -161,7 +161,7 @@
           <a href="index.html" class="nb-logo">
             <div class="nb-logo-icon">${LOGO_SVG}</div>
             <div class="nb-logo-text">
-              <span class="nb-logo-title">QuizAI</span>
+              <span class="nb-logo-title">AAACET AI Championship</span>
               <span class="nb-logo-sub">Competition 2026</span>
             </div>
           </a>
@@ -181,7 +181,7 @@
           <div class="nb-drawer-head">
             <a href="index.html" class="nb-logo" onclick="nbCloseDrawer()">
               <div class="nb-logo-icon">${LOGO_SVG}</div>
-              <div class="nb-logo-text"><span class="nb-logo-title">QuizAI</span></div>
+              <div class="nb-logo-text"><span class="nb-logo-title">AAACET AI Championship</span></div>
             </a>
             <button class="nb-drawer-close" onclick="nbCloseDrawer()">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
