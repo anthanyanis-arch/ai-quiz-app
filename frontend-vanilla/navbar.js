@@ -6,7 +6,7 @@
     { href: 'instructions.html', label: 'Instructions', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
   ];
 
-  const LOGO_SVG = `<img src="college4.png" alt="AAACET" style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:2px solid rgba(63,208,230,0.5);box-shadow:0 0 12px rgba(63,208,230,0.3);">`;
+  const LOGO_SVG = `<img src="college4.png" alt="AAACET" style="width:36px;height:36px;object-fit:cover;border-radius:50%;border:2px solid rgba(63,208,230,0.5);box-shadow:0 0 10px rgba(63,208,230,0.3);">`;
   const CSS = `
     #nb-root {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -140,12 +140,12 @@
       .nb-logout { display: none !important; }
       .nb-ham { display: flex !important; }
       .nb-logo-sub { display: none; }
-      .nb-inner { padding: 10px 16px; justify-content: space-between; }
+      .nb-inner { padding: 0 16px; min-height: 56px; }
       .nb-logo { flex: 1; justify-content: center; }
-      .nb-actions { position: absolute; right: 16px; }
-      #nb-root { position: relative; }
+      .nb-logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
+      .nb-logo-title { font-size: 12px; }
     }
-    @media (max-width: 380px) { .nb-logo-title { font-size: 12px; } .nb-logo-icon { width: 30px; height: 30px; } }
+    @media (max-width: 380px) { .nb-logo-title { font-size: 11px; } .nb-logo-icon { width: 30px; height: 30px; } }
   `;
 
   function buildNavbar() {
@@ -178,7 +178,7 @@
             <div class="nb-logo-icon">${LOGO_SVG}</div>
             <div class="nb-logo-text">
               <span class="nb-logo-title">AAACET AI Championship</span>
-              <span class="nb-logo-sub">Competition 2026</span>
+              <span class="nb-logo-sub">Competition 2026 · AAACET</span>
             </div>
           </a>
           <ul class="nb-links">${desktopLinks}</ul>
