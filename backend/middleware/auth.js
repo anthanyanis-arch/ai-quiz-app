@@ -3,11 +3,12 @@ const { Student } = require('../models/models');
 
 const auth = async (req, res, next) => {
   const header = req.headers.authorization;
-  if (!header || !header.startsWith('Bearer ')) {
+  const token = (header && header.startsWith('Bearer ') ? header.split(' ')[1] : null) || req.query.token;
+  if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
   try {
-    const decoded = jwt.verify(header.split(' ')[1], process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await Student.findById(decoded.id).select('-otp -otpExpiry');
     if (!req.user) return res.status(401).json({ message: 'User not found' });
     next();
