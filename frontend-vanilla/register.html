@@ -489,7 +489,7 @@
 </main>
 
 <script>
-  const API = window.API || 'http://localhost:3000/api';
+  const API = 'https://ai-quiz-app-1-zbsq.onrender.com/api';
 
   function toggleTick() {
     const wrap = document.getElementById('tick-wrap');
@@ -565,16 +565,18 @@
       formData.append('yearOfCompletion', '2025');
       formData.append('markSheet', file);
 
-      // Save details for success page, then redirect
-      console.log('[register.html] Registration successful, redirecting to success.html');
-      sessionStorage.setItem('regSuccess', JSON.stringify({ name, email, school }));
-      location.replace('success.html');
-
-      // Also attempt to save to backend in the background
-      fetch(API + '/auth/register', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => console.log('[register.html] API response:', data))
-        .catch(err => console.warn('[register.html] API unreachable (offline mode):', err));
+      try {
+        const res = await fetch(API + '/auth/register', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Registration failed');
+        sessionStorage.setItem('regSuccess', JSON.stringify({ name, email, school }));
+        location.replace('success.html');
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Register for Quiz';
+      }
     });
 
   });
