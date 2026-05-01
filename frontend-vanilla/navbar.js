@@ -3,10 +3,10 @@
     { href: 'index.html', label: 'Home', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
     { href: 'leaderboard.html', label: 'Leaderboard', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 0 0 5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 1 0 5H18"/><path d="M8 9h8"/><path d="M8 14h8"/><rect x="6" y="2" width="12" height="7" rx="1"/><path d="M6 18h12"/><path d="M10 22h4"/><path d="M12 18v4"/></svg>` },
     { href: 'register.html', label: 'Register', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>` },
+    { href: 'instructions.html', label: 'Instructions', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
   ];
 
-  const LOGO_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v3m0 3v.01M14 17.5h3m3 0h.01"/></svg>`;
-
+  const LOGO_SVG = `<img src="college4.png" alt="AAACET" style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:2px solid rgba(63,208,230,0.5);box-shadow:0 0 12px rgba(63,208,230,0.3);">`;
   const CSS = `
     #nb-root {
       position: sticky; top: 0; z-index: 50;
@@ -17,7 +17,13 @@
       box-shadow: 0 1px 32px rgba(0,0,0,0.4);
       transition: background 0.3s ease, box-shadow 0.3s ease;
       font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
     }
+    #nb-neural-canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .nb-inner { position: relative; z-index: 1; }
     #nb-root.nb-scrolled {
       background: rgba(2,20,23,0.97);
       box-shadow: 0 4px 32px rgba(0,0,0,0.5), 0 1px 0 rgba(63,208,230,0.10);
@@ -29,10 +35,8 @@
     }
     .nb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; max-width: calc(100% - 60px); }
     .nb-logo-icon {
-      width: 38px; height: 38px; border-radius: 12px;
-      background: linear-gradient(135deg, #0e7490 0%, #3fd0e6 100%);
+      width: 48px; height: 48px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 16px rgba(63,208,230,0.25);
       transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
       flex-shrink: 0;
     }
@@ -167,6 +171,7 @@
 
     return `
       <nav id="nb-root">
+        <canvas id="nb-neural-canvas"></canvas>
         <div class="nb-inner">
           <a href="index.html" class="nb-logo">
             <div class="nb-logo-icon">${LOGO_SVG}</div>
@@ -206,6 +211,69 @@
       </div>`;
   }
 
+  function startNeuralAnimation() {
+    const canvas = document.getElementById('nb-neural-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let nodes = [];
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < 28; i++) {
+      nodes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        r: Math.random() * 2 + 1.5,
+        pulse: Math.random() * Math.PI * 2,
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      nodes.forEach(n => {
+        n.x += n.vx; n.y += n.vy; n.pulse += 0.04;
+        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+      });
+      // Draw connections
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(63,208,230,${0.18 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+      // Draw nodes
+      nodes.forEach(n => {
+        const glow = Math.sin(n.pulse) * 0.5 + 0.5;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + glow, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(63,208,230,${0.5 + glow * 0.4})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(63,208,230,0.6)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
   function inject() {
     const style = document.createElement('style');
     style.textContent = CSS;
@@ -213,6 +281,7 @@
     const root = document.getElementById('navbar-root');
     if (!root) return;
     root.innerHTML = buildNavbar();
+    startNeuralAnimation();
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('nb-root');
       if (nav) nav.classList.toggle('nb-scrolled', window.scrollY > 20);
