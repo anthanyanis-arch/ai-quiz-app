@@ -38,7 +38,7 @@
     }
     .nb-logo:hover .nb-logo-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 24px rgba(63,208,230,0.35); }
     .nb-logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-    .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: #d9f3f7; letter-spacing: -0.01em; }
+    .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; color: #d9f3f7; letter-spacing: -0.01em; line-height: 1.2; }
     .nb-logo-sub { font-size: 10px; color: #3fd0e6; letter-spacing: 0.06em; font-weight: 600; }
     .nb-links { display: flex; align-items: center; gap: 2px; list-style: none; margin: 0; padding: 0; }
     .nb-link {
@@ -129,8 +129,8 @@
       box-shadow: 0 4px 16px rgba(63,208,230,0.18); transition: all 0.25s ease;
     }
     .nb-drawer-cta:hover { box-shadow: 0 8px 28px rgba(63,208,230,0.28); }
-    @media (max-width: 767px) { .nb-links { display: none; } .nb-cta { display: none; } .nb-ham { display: flex; } .nb-logo-sub { display: none; } }
-    @media (max-width: 480px) { .nb-logo-title { font-size: 13px; } }
+    @media (max-width: 767px) { .nb-links { display: none; } .nb-cta { display: none; } .nb-ham { display: flex; } .nb-logo-sub { display: none; } .nb-logo-title { font-size: 12px; } }
+    @media (max-width: 380px) { .nb-logo-title { font-size: 11px; } .nb-logo-icon { width: 30px; height: 30px; } }
   `;
 
   function buildNavbar() {

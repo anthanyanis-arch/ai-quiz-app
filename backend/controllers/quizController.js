@@ -22,8 +22,15 @@ const startQuiz = async (req, res) => {
       }
       const shuffled = allQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
 
-      // Attach active quiz settings if available
       const settings = await QuizSettings.findOne({ isActive: true }).sort({ startTime: -1 });
+
+      // Check if quiz is over
+      if (settings && settings.quizStarted) {
+        const quizEndTime = new Date(settings.startTime).getTime() + (settings.duration || 20) * 60 * 1000;
+        if (Date.now() > quizEndTime) {
+          return res.status(403).json({ quizOver: true, message: 'Quiz is over! Better luck next time.' });
+        }
+      }
 
       attempt = await QuizAttempt.create({
         student: student._id,
