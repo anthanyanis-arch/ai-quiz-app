@@ -27,9 +27,10 @@ const register = async (req, res) => {
       schoolName,
       yearOfCompletion: yearOfCompletion || '2025',
       markSheetPath: req.file ? req.file.path : null,
+      status: 'approved',
     });
 
-    res.status(201).json({ message: 'Registration submitted. Await approval.' });
+    res.status(201).json({ message: 'Registration successful. You can now login.' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -43,9 +44,6 @@ const sendOtp = async (req, res) => {
 
     const student = await Student.findOne({ email: email.toLowerCase() });
     if (!student) return res.status(404).json({ message: 'Email not registered' });
-    if (student.status !== 'approved') {
-      return res.status(403).json({ message: 'Your registration is not yet approved' });
-    }
 
     // Admin skips OTP — handled by /admin-login
     if (student.role === 'admin') {
@@ -77,9 +75,6 @@ const login = async (req, res) => {
 
     const student = await Student.findOne({ email: email.toLowerCase() }).select('+otp +otpExpiry');
     if (!student) return res.status(404).json({ message: 'Email not registered' });
-    if (student.status !== 'approved') {
-      return res.status(403).json({ message: 'Your registration is not yet approved' });
-    }
     if (!student.otp || student.otp !== otp) {
       return res.status(401).json({ message: 'Invalid OTP' });
     }

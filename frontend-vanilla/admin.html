@@ -56,6 +56,14 @@
       display: flex;
       flex-direction: column;
     }
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; min-height: unset; }
+      .data-table thead { display: none; }
+      .data-table tr { display: block; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; }
+      .data-table td { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
+      .data-table td:last-child { border-bottom: none; }
+      .data-table td::before { content: attr(data-label); font-weight: 700; color: #94a3b8; font-size: 0.7rem; text-transform: uppercase; margin-right: 8px; flex-shrink: 0; }
+    }
 
     /* Nav item */
     .nav-item {
@@ -248,19 +256,19 @@
       </button>
     </div>
     <nav class="flex-grow p-3 space-y-0.5">
-      <a href="#" class="nav-item active">
+      <a href="#" onclick="showTab('dashboard');closeSidebar();return false;" class="nav-item active">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Dashboard
       </a>
-      <a href="#" class="nav-item">
+      <a href="#" onclick="showTab('students');closeSidebar();return false;" class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
         Students
       </a>
-      <a href="#" class="nav-item">
+      <a href="#" onclick="showTab('questions');closeSidebar();return false;" class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         Questions
       </a>
-      <a href="#" class="nav-item">
+      <a href="#" onclick="showTab('leaderboard');closeSidebar();return false;" class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Leaderboard
       </a>
@@ -291,19 +299,19 @@
       </div>
       <nav class="flex-grow p-3 space-y-0.5">
         <p class="section-label">Main</p>
-        <a href="#" onclick="showTab('dashboard')" id="nav-dashboard" class="nav-item active">
+        <a href="#" onclick="showTab('dashboard');return false;" id="nav-dashboard" class="nav-item active">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           Dashboard
         </a>
-        <a href="#" onclick="showTab('students')" id="nav-students" class="nav-item">
+        <a href="#" onclick="showTab('students');return false;" id="nav-students" class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           Students
         </a>
-        <a href="#" onclick="showTab('questions')" id="nav-questions" class="nav-item">
+        <a href="#" onclick="showTab('questions');return false;" id="nav-questions" class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Questions
         </a>
-        <a href="#" onclick="showTab('leaderboard')" id="nav-leaderboard" class="nav-item">
+        <a href="#" onclick="showTab('leaderboard');return false;" id="nav-leaderboard" class="nav-item">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           Leaderboard
         </a>
@@ -498,12 +506,12 @@
 
     <!-- ── STUDENTS TAB ── -->
     <div id="tab-students" class="hidden">
-      <div class="flex items-center justify-between mb-5">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 class="font-display font-bold text-lg text-slate-800">Student Management</h2>
-        <div class="flex gap-2">
-          <button onclick="loadStudents('pending')" id="btn-pending" class="btn-primary">Pending</button>
-          <button onclick="loadStudents('approved')" id="btn-approved" class="btn-outline">Approved</button>
-          <button onclick="loadStudents('rejected')" id="btn-rejected" class="btn-outline">Rejected</button>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="loadStudents('pending')" id="btn-pending" class="btn-primary text-xs px-3 py-1.5">Pending</button>
+          <button onclick="loadStudents('approved')" id="btn-approved" class="btn-outline text-xs px-3 py-1.5">Approved</button>
+          <button onclick="loadStudents('rejected')" id="btn-rejected" class="btn-outline text-xs px-3 py-1.5">Rejected</button>
         </div>
       </div>
       <div id="students-list" class="card overflow-hidden">
@@ -758,16 +766,16 @@
 
     // ── TAB SWITCHING ──────────────────────────────────────────────
     const TABS = ['dashboard', 'students', 'questions', 'leaderboard'];
+    const TAB_TITLES = { dashboard: 'Dashboard', students: 'Students', questions: 'Questions', leaderboard: 'Leaderboard' };
     function showTab(name) {
       TABS.forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== name);
+        // Update both desktop and mobile nav items
+        document.querySelectorAll(`[data-tab="${t}"]`).forEach(el => el.classList.toggle('active', t === name));
         const nav = document.getElementById(`nav-${t}`);
-        if (nav) {
-          nav.classList.toggle('active', t === name);
-          nav.classList.toggle('text-sky-deep', t === name);
-          nav.classList.toggle('text-gray-500', t !== name);
-        }
+        if (nav) nav.classList.toggle('active', t === name);
       });
+      document.getElementById('topbar-title').textContent = TAB_TITLES[name];
       if (name === 'students') loadStudents('pending');
       if (name === 'questions') loadQuestions();
       if (name === 'leaderboard') loadLeaderboard();
@@ -854,25 +862,23 @@
             const isImg   = ['jpg','jpeg','png','webp'].includes(ext);
             return `
             <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors" id="row-${s._id}">
-              <td class="p-4 font-medium text-gray-900 text-sm">${s.fullName}</td>
-              <td class="p-4 text-gray-500 text-sm">${s.email}</td>
-              <td class="p-4 text-gray-500 text-sm hidden sm:table-cell">${s.schoolName}</td>
-              <td class="p-4 text-gray-500 text-sm hidden md:table-cell">${s.phone}</td>
-              <td class="p-4">
+              <td class="p-4 font-medium text-gray-900 text-sm" data-label="Name">${s.fullName}</td>
+              <td class="p-4 text-gray-500 text-sm" data-label="Email">${s.email}</td>
+              <td class="p-4 text-gray-500 text-sm hidden sm:table-cell" data-label="School">${s.schoolName}</td>
+              <td class="p-4 text-gray-500 text-sm hidden md:table-cell" data-label="Phone">${s.phone}</td>
+              <td class="p-4" data-label="ID Card">
                 ${imgUrl && isImg
                   ? `<img src="${imgUrl}" alt="ID" onclick="openImgModal('${imgUrl}','${s._id}')" class="w-14 h-14 object-cover rounded-xl border-2 border-gray-200 cursor-pointer hover:border-sky-400 hover:scale-105 transition-all shadow" title="Click to verify"/>`
                   : imgUrl
                   ? `<a href="${imgUrl}" target="_blank" class="text-sky-deep text-xs underline">View PDF</a>`
                   : '<span class="text-gray-300 text-xs">—</span>'}
               </td>
-              <td class="p-4">
+              <td class="p-4" data-label="Action">
                 ${status === 'pending' ? `
-                  <div class="flex flex-col gap-1.5">
-                    <div class="flex gap-2">
-                      <button onclick="approveStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 active:scale-95 transition-all">✓ Approve</button>
-                      <button onclick="rejectStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 active:scale-95 transition-all">✗ Reject</button>
-                    </div>
-                    ${imgUrl && isImg ? `<button onclick="openImgModal('${imgUrl}','${s._id}')" class="px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 text-xs font-semibold hover:bg-sky-200 active:scale-95 transition-all">🔍 Verify ID</button>` : ''}
+                  <div class="flex flex-wrap gap-1.5">
+                    <button onclick="approveStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 active:scale-95 transition-all">✓ Approve</button>
+                    <button onclick="rejectStudent('${s._id}')" class="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 active:scale-95 transition-all">✗ Reject</button>
+                    ${imgUrl && isImg ? `<button onclick="openImgModal('${imgUrl}','${s._id}')" class="px-3 py-1.5 rounded-lg bg-sky-100 text-sky-700 text-xs font-semibold hover:bg-sky-200 active:scale-95 transition-all">🔍 Verify</button>` : ''}
                   </div>`
                   : `<span class="px-3 py-1 rounded-full text-xs font-semibold ${status==='approved'?'bg-green-100 text-green-700':'bg-red-100 text-red-600'}">${status}</span>`}
               </td>
