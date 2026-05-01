@@ -221,6 +221,7 @@
   </style>
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden bg-slate-50">
+  <script src="api.js"></script>
 
   <!-- Loading Screen -->
   <div id="loading-screen" class="fixed inset-0 z-[999] flex items-center justify-center bg-white">
@@ -632,10 +633,6 @@
     (function() {
       const dark = localStorage.getItem('theme') === 'dark';
       if (dark) { document.body.classList.add('dark-mode'); document.documentElement.classList.add('dark'); }
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('icon-sun').classList.toggle('hidden', dark);
-        document.getElementById('icon-moon').classList.toggle('hidden', !dark);
-      });
     })();
 
     function openSidebar() {
