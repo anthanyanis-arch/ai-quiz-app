@@ -9,7 +9,8 @@
   const LOGO_SVG = `<img src="college4.png" alt="AAACET" style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:2px solid rgba(63,208,230,0.5);box-shadow:0 0 12px rgba(63,208,230,0.3);">`;
   const CSS = `
     #nb-root {
-      position: sticky; top: 0; z-index: 50;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
       background: rgba(2,20,23,0.85);
       border-bottom: 1px solid rgba(63,208,230,0.10);
       backdrop-filter: blur(24px) saturate(180%);
@@ -20,8 +21,8 @@
       overflow: hidden;
     }
     #nb-neural-canvas {
-      position: absolute; inset: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 0;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; display: block;
     }
     .nb-inner { position: relative; z-index: 1; }
     #nb-root.nb-scrolled {
@@ -218,8 +219,22 @@
     let nodes = [];
 
     function resize() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      const isMobile = window.innerWidth < 768;
+      canvas.width = window.innerWidth;
+      canvas.height = isMobile ? 56 : 64;
+      nodes = [];
+      const count = isMobile ? 15 : Math.floor(canvas.width / 40);
+      const maxDist = isMobile ? 60 : 120;
+      for (let i = 0; i < count; i++) {
+        nodes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5,
+          r: isMobile ? 1.5 : Math.random() * 2 + 1.5,
+          pulse: Math.random() * Math.PI * 2,
+        });
+      }
     }
     resize();
     window.addEventListener('resize', resize);
@@ -243,16 +258,17 @@
         if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
       });
       // Draw connections
+      const maxDist = window.innerWidth < 768 ? 55 : 120;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x;
           const dy = nodes[i].y - nodes[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < maxDist) {
             ctx.beginPath();
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(63,208,230,${0.18 * (1 - dist / 120)})`;
+            ctx.strokeStyle = `rgba(63,208,230,${0.18 * (1 - dist / maxDist)})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -282,9 +298,18 @@
     if (!root) return;
     root.innerHTML = buildNavbar();
     startNeuralAnimation();
+    let lastScroll = 0;
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('nb-root');
-      if (nav) nav.classList.toggle('nb-scrolled', window.scrollY > 20);
+      if (!nav) return;
+      const current = window.scrollY;
+      nav.classList.toggle('nb-scrolled', current > 20);
+      if (current > lastScroll && current > 80) {
+        nav.style.transform = 'translateY(-100%)';
+      } else {
+        nav.style.transform = 'translateY(0)';
+      }
+      lastScroll = current;
     }, { passive: true });
   }
 
