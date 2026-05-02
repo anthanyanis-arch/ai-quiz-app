@@ -223,6 +223,73 @@
       border-color: rgba(22,163,74,0.4);
       background: rgba(22,163,74,0.05);
     }
+    .agree-label {
+      user-select: none;
+    }
+    .agree-check {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+    .agree-tick {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      border: 2px solid rgba(22,163,74,0.28);
+      background: rgba(255,255,255,0.78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .agree-tick::after {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background: radial-gradient(circle, rgba(34,197,94,0.32), rgba(34,197,94,0) 64%);
+      opacity: 0;
+      transform: scale(0.45);
+      transition: all 0.32s ease;
+    }
+    .agree-svg {
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.22s cubic-bezier(.34,1.56,.64,1);
+    }
+    .agree-path {
+      stroke-dasharray: 22;
+      stroke-dashoffset: 22;
+      transition: stroke-dashoffset 0.34s ease 0.06s;
+    }
+    .agree-label:hover .agree-tick,
+    .agree-check:focus-visible + .agree-tick {
+      border-color: rgba(22,163,74,0.55);
+      box-shadow: 0 0 0 4px rgba(22,163,74,0.10);
+    }
+    .agree-check:checked + .agree-tick {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-color: #22c55e;
+      box-shadow: 0 8px 18px rgba(22,163,74,0.24), 0 0 0 4px rgba(22,163,74,0.12);
+      transform: scale(1.04);
+    }
+    .agree-check:checked + .agree-tick::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .agree-check:checked + .agree-tick .agree-svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .agree-check:checked + .agree-tick .agree-path {
+      stroke-dashoffset: 0;
+    }
 
     /* Theme toggle */
     .theme-toggle {
@@ -463,11 +530,13 @@
 
     <!-- Agreement -->
     <div class="agree-box fade-up p-4 sm:p-5 mb-5">
-      <label class="flex items-start gap-3 cursor-pointer">
-        <input id="agree-check" type="checkbox"
-          class="mt-0.5 w-5 h-5 shrink-0 cursor-pointer appearance-none rounded-lg border border-white/20 checked:bg-green-600 checked:border-green-500 transition-all"
-          style="background-image: none;"
-          onchange="toggleStartBtn(); this.style.backgroundImage = this.checked ? 'url(\"data:image/svg+xml,%3csvg viewBox=\'0 0 16 16\' fill=\'white\' xmlns=\'http://www.w3.org/2000/svg\'%3e%3cpath d=\'M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z\'/%3e%3c/svg%3e\")' : 'none'"/>
+      <label class="agree-label flex items-start gap-3 cursor-pointer">
+        <input id="agree-check" type="checkbox" class="agree-check" onchange="toggleStartBtn()"/>
+        <span class="agree-tick mt-0.5" aria-hidden="true">
+          <svg class="agree-svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path class="agree-path" d="M3.5 8.2l3 3 6-6.4" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
         <span class="text-gray-600 text-sm leading-relaxed">I have read and understood all the instructions. I agree to abide by the rules and academic integrity policy.</span>
       </label>
     </div>
