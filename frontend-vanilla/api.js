@@ -3,16 +3,17 @@
 (function () {
   const BACKENDS = [
     'https://ai-quiz-app-1-zbsq.onrender.com/api',
+    'https://ai-quiz-backend-2.onrender.com/api',
   ];
 
   // Pick backend based on a random sticky session stored in sessionStorage
   // Same user always hits the same backend during their session
   let idx = sessionStorage.getItem('_backend_idx');
-  if (idx === null) {
+  if (idx === null || Number.isNaN(Number(idx)) || Number(idx) >= BACKENDS.length) {
     idx = Math.floor(Math.random() * BACKENDS.length);
     sessionStorage.setItem('_backend_idx', idx);
   }
 
-  window.API = BACKENDS[parseInt(idx)];
+  window.API = BACKENDS[Number(idx)];
   console.log('[LB] Using backend:', window.API);
 })();

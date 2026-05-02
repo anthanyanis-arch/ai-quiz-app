@@ -2,23 +2,23 @@
   const NAV = [
     { href: 'index.html', label: 'Home', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
     { href: 'register.html', label: 'Register', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>` },
-    { href: 'instructions.html', label: 'Instructions', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
+    { href: 'index.html#instructions', label: 'Instructions', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
   ];
 
   const LOGO_SVG = ``;
   const CSS = `
     #nb-root {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
       background: rgba(2,20,23,0.85);
       border-bottom: 1px solid rgba(63,208,230,0.10);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       box-shadow: 0 1px 32px rgba(0,0,0,0.4);
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+      transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
       font-family: 'DM Sans', sans-serif;
       overflow: hidden;
     }
+    #nb-root.nb-hidden { transform: translateY(-100%); }
     #nb-neural-canvas {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none; z-index: 0; display: block;
@@ -36,9 +36,7 @@
     .nb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; max-width: calc(100% - 60px); }
     .nb-logo-icon { display: none; }
     .nb-logo { gap: 0; }
-    .nb-logo-text { align-items: center; text-align: center; }
-    .nb-inner { justify-content: center; position: relative; }
-    .nb-actions { position: absolute; right: 20px; }
+    .nb-logo-text { align-items: flex-start; text-align: left; }
     .nb-logo:hover .nb-logo-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 24px rgba(63,208,230,0.35); }
     .nb-logo-text { display: flex; flex-direction: column; line-height: 1.3; }
     .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #d9f3f7; letter-spacing: -0.01em; line-height: 1.3; word-break: break-word; }
@@ -138,8 +136,10 @@
       .nb-logout { display: none !important; }
       .nb-ham { display: flex !important; }
       .nb-logo-sub { display: none; }
-      .nb-inner { padding: 0 16px; min-height: 56px; }
+      .nb-inner { padding: 0 16px; min-height: 56px; justify-content: center; position: relative; }
       .nb-logo { flex: 1; justify-content: center; }
+      .nb-logo-text { align-items: center; text-align: center; }
+      .nb-actions { position: absolute; right: 16px; }
       .nb-logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
       .nb-logo-title { font-size: 12px; }
     }
@@ -148,16 +148,21 @@
 
   function buildNavbar() {
     const page = location.pathname.split('/').pop() || 'index.html';
+    const currentHash = location.hash;
     const user = (() => { try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; } })();
     const isLoggedIn = !!(user && localStorage.getItem('token'));
+    const isActive = (href) => {
+      const [hrefPage, hrefHash] = href.split('#');
+      return page === hrefPage && (hrefHash ? currentHash === `#${hrefHash}` : !currentHash);
+    };
 
     const desktopLinks = NAV.map(n => {
-      const active = page === n.href ? ' nb-active' : '';
+      const active = isActive(n.href) ? ' nb-active' : '';
       return `<li><a href="${n.href}" class="nb-link${active}">${n.icon}<span>${n.label}</span></a></li>`;
     }).join('');
 
     const mobileLinks = NAV.map(n => {
-      const active = page === n.href ? ' nb-active' : '';
+      const active = isActive(n.href) ? ' nb-active' : '';
       return `<a href="${n.href}" class="nb-drawer-link${active}"><span class="nb-drawer-icon-wrap">${n.icon}</span><span>${n.label}</span></a>`;
     }).join('');
 
@@ -175,7 +180,7 @@
           <a href="index.html" class="nb-logo">
             <div class="nb-logo-icon">${LOGO_SVG}</div>
             <div class="nb-logo-text">
-              <span class="nb-logo-title"><h1>AI T20 Championship</h1></span>
+              <span class="nb-logo-title">AAACET AI Championship</span>
               <span class="nb-logo-sub">Competition 2026 · AAACET</span>
             </div>
           </a>
@@ -186,6 +191,16 @@
             <button class="nb-ham" id="nb-ham" onclick="nbOpenDrawer()" aria-label="Open menu">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
+          </div>
+        </div>
+        <div id="nb-marquee" style="background:linear-gradient(90deg,#021417,#0a3d4a,#021417);padding:5px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(63,208,230,0.15);position:relative;z-index:1;">
+          <div style="display:inline-block;animation:mqScroll 25s linear infinite;">
+            <span style="font-family:Syne,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.07em;">
+              <span style="color:#3fd0e6">&#10022; Proudly Presented by &nbsp;</span><span style="color:#fff;text-shadow:0 0 8px rgba(63,208,230,0.6);">AAACET</span><span style="color:#3fd0e6"> &mdash; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.4);">Department of Artificial Intelligence &amp; Data Science</span>
+              <span style="color:#3fd0e6">&nbsp;&nbsp;&#10022;&nbsp;&nbsp;</span>
+              <span style="color:#3fd0e6">&#10022; Proudly Presented by &nbsp;</span><span style="color:#fff;text-shadow:0 0 8px rgba(63,208,230,0.6);">AAACET</span><span style="color:#3fd0e6"> &mdash; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.4);">Department of Artificial Intelligence &amp; Data Science</span>
+              <span style="color:#3fd0e6">&nbsp;&nbsp;&#10022;&nbsp;&nbsp;</span>
+            </span>
           </div>
         </div>
       </nav>
@@ -295,26 +310,67 @@
     const root = document.getElementById('navbar-root');
     if (!root) return;
     root.innerHTML = buildNavbar();
-    const mq = document.createElement('div'); mq.style.cssText = 'position:fixed;top:64px;left:0;right:0;z-index:47;background:linear-gradient(90deg,#021417,#0a3d4a,#021417);padding:6px 0;overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(63,208,230,0.2);;'; const mqInner = document.createElement('div'); mqInner.style.cssText = 'display:flex;width:max-content;animation:mqScroll 25s linear infinite;'; const mqText = '<span style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.07em;padding-right:80px;"><span style="color:#3fd0e6">&#10022; Proudly Presented by &nbsp;</span><span style="color:#fff;text-shadow:0 0 8px rgba(63,208,230,0.6);">AAACET</span><span style="color:#3fd0e6"> &mdash; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.5);">Department of Artificial Intelligence &amp; Data Science &nbsp;</span></span>'; mqInner.innerHTML = mqText + mqText + mqText + mqText; mq.appendChild(mqInner); const mqStyle = document.createElement('style'); mqStyle.textContent = '@keyframes mqScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}'; document.head.appendChild(mqStyle); document.body.appendChild(mq); document.body.style.paddingTop = '92px';
+    const mqStyle = document.createElement('style'); mqStyle.textContent = '@keyframes mqScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}'; document.head.appendChild(mqStyle);
+    document.body.style.paddingTop = '92px';
     startNeuralAnimation();
     let lastScroll = 0;
-    window.addEventListener('scroll', () => {
+    const autoHideQuery = window.matchMedia('(max-width: 1440px)');
+    const syncNavScrollState = () => {
       const nav = document.getElementById('nb-root');
       if (!nav) return;
       const current = window.scrollY;
       nav.classList.toggle('nb-scrolled', current > 20);
-      if (current > lastScroll && current > 80) {
-        nav.style.transform = 'translateY(-100%)';
-      } else {
-        nav.style.transform = 'translateY(0)';
+      const drawerOpen = document.getElementById('nb-drawer')?.classList.contains('nb-open');
+      const delta = current - lastScroll;
+
+      if (!autoHideQuery.matches || drawerOpen || current <= 80) {
+        nav.classList.remove('nb-hidden');
+      } else if (delta > 6) {
+        nav.classList.add('nb-hidden');
+      } else if (delta < -6) {
+        nav.classList.remove('nb-hidden');
       }
+
       lastScroll = current;
-    }, { passive: true });
+    };
+    window.addEventListener('scroll', syncNavScrollState, { passive: true });
+    window.addEventListener('resize', syncNavScrollState);
+    if (autoHideQuery.addEventListener) {
+      autoHideQuery.addEventListener('change', syncNavScrollState);
+    } else if (autoHideQuery.addListener) {
+      autoHideQuery.addListener(syncNavScrollState);
+    }
   }
 
-  window.nbOpenDrawer  = function () { const d = document.getElementById('nb-drawer'); if (d) { d.classList.add('nb-open'); document.body.style.overflow = 'hidden'; } };
-  window.nbCloseDrawer = function () { const d = document.getElementById('nb-drawer'); if (d) { d.classList.remove('nb-open'); document.body.style.overflow = ''; } };
-  window.nbLogout      = function () { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = 'login.html'; };
+  function showNavbar() {
+    const nav = document.getElementById('nb-root');
+    if (nav) nav.classList.remove('nb-hidden');
+  }
 
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', inject); } else { inject(); }
+  window.nbOpenDrawer  = function () {
+    showNavbar();
+    const d = document.getElementById('nb-drawer');
+    if (d) {
+      d.classList.add('nb-open');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+  window.nbCloseDrawer = function () {
+    const d = document.getElementById('nb-drawer');
+    if (d) {
+      d.classList.remove('nb-open');
+      document.body.style.overflow = '';
+    }
+  };
+  window.nbLogout      = function () {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inject);
+  } else {
+    inject();
+  }
 })();

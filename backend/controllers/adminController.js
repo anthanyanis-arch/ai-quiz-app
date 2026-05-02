@@ -1,6 +1,14 @@
 const { Student, QuizAttempt, Question, QuizSettings } = require('../models/models');
 const xlsx = require('xlsx');
 
+function safeFilenamePart(value) {
+  return String(value || '')
+    .trim()
+    .replace(/[^a-z0-9_-]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 40);
+}
+
 // GET /api/admin/stats
 const getStats = async (req, res) => {
   try {
@@ -109,12 +117,14 @@ const rejectStudent = async (req, res) => {
 // GET /api/admin/export  – download results as .xlsx
 const exportResults = async (req, res) => {
   try {
+    const zone = req.query.zone ? String(req.query.zone).trim() : '';
     const attempts = await QuizAttempt.find({ isSubmitted: true })
       .populate('student', 'fullName email phone schoolName')
       .sort({ score: -1, timeTaken: 1 });
 
     const rows = attempts.map((a, i) => ({
       Rank: i + 1,
+      ...(zone ? { Zone: zone } : {}),
       Name: a.student?.fullName || '',
       Email: a.student?.email || '',
       Phone: a.student?.phone || '',
@@ -127,12 +137,31 @@ const exportResults = async (req, res) => {
 
     const wb = xlsx.utils.book_new();
     const ws = xlsx.utils.json_to_sheet(rows);
-    xlsx.utils.book_append_sheet(wb, ws, 'Results');
+    xlsx.utils.book_append_sheet(wb, ws, zone ? `${safeFilenamePart(zone).slice(0, 20) || 'Zone'} Results` : 'Results');
 
     const buf = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
-    res.setHeader('Content-Disposition', 'attachment; filename="quiz_results.xlsx"');
+    const filename = zone ? `quiz_results_${safeFilenamePart(zone) || 'zone'}.xlsx` : 'quiz_results.xlsx';
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.send(buf);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE /api/admin/leaderboard - clear attempts for next zonal quiz
+const resetLeaderboard = async (req, res) => {
+  try {
+    const [attemptResult, studentResult] = await Promise.all([
+      QuizAttempt.deleteMany({}),
+      Student.updateMany({ role: 'student' }, { hasAttempted: false }),
+    ]);
+
+    res.json({
+      message: 'Leaderboard cleared. Students can attempt the next zonal quiz.',
+      deletedAttempts: attemptResult.deletedCount || 0,
+      resetStudents: studentResult.modifiedCount || 0,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -253,7 +282,7 @@ const getQuestions = async (req, res) => {
 module.exports = {
   getStats, getLive, getQuestionStats,
   getStudents, approveStudent, rejectStudent,
-  exportResults, addQuestion, deleteQuestion, getQuestions,
+  exportResults, resetLeaderboard, addQuestion, deleteQuestion, getQuestions,
   getQuizSettings, upsertQuizSettings,
   adminStartQuiz, adminStopQuiz, getQuizStatus,
 };

@@ -17,13 +17,22 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
 // ── Rate limiting (100 req/min per IP) ───────────────────────────────────────
 const rateMap = new Map();
 app.use((req, res, next) => {
-  const ip = req.ip;
+  if (req.path === '/api/quiz/status') return next();
+
+  const authRouteLimits = {
+    '/api/auth/register': 30,
+    '/api/auth/send-otp': 20,
+    '/api/auth/login': 60,
+    '/api/auth/admin-login': 20,
+  };
+  const limit = authRouteLimits[req.path] || 5000;
+  const key = `${req.ip}:${req.path}`;
   const now = Date.now();
-  const entry = rateMap.get(ip) || { count: 0, start: now };
+  const entry = rateMap.get(key) || { count: 0, start: now };
   if (now - entry.start > 60000) { entry.count = 0; entry.start = now; }
   entry.count++;
-  rateMap.set(ip, entry);
-  if (entry.count > 100) return res.status(429).json({ message: 'Too many requests. Please slow down.' });
+  rateMap.set(key, entry);
+  if (entry.count > limit) return res.status(429).json({ message: 'Too many requests. Please slow down.' });
   next();
 });
 

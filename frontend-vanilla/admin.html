@@ -561,7 +561,7 @@
           <h2 class="font-display font-bold text-lg text-slate-800">🏆 Leaderboard</h2>
           <p class="text-slate-400 text-xs mt-0.5">Ranked by score, then fastest time</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
           <button onclick="loadLeaderboard()" class="btn-outline">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
             Refresh
@@ -570,6 +570,9 @@
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export .xlsx
           </a>
+          <button onclick="resetLeaderboard()" class="px-4 py-2 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-100 active:scale-95 transition-all">
+            Clear Leaderboard
+          </button>
         </div>
       </div>
 
@@ -613,12 +616,15 @@
   </div>
 
   <script>
-    const API = 'https://ai-quiz-app-1-zbsq.onrender.com/api';
+    const API = window.API || 'https://ai-quiz-app-1-zbsq.onrender.com/api';
     let barChart, pieChart;
 
     function exportResults() {
       const token = localStorage.getItem('token');
-      window.open(`${API}/admin/export?token=${token}`, '_blank');
+      const zone = prompt('Enter zone name for this Excel sheet (optional):', '');
+      const params = new URLSearchParams({ token });
+      if (zone && zone.trim()) params.set('zone', zone.trim());
+      window.open(`${API}/admin/export?${params.toString()}`, '_blank');
     }
 
     function authHeaders() {
@@ -857,9 +863,13 @@
           </tr></thead>
           <tbody>${students.map(s => {
             const imgPath = s.markSheetPath ? s.markSheetPath.replace(/\\/g,'/') : null;
-            const imgUrl  = imgPath ? `${API.replace('/api','')}/${imgPath.replace(/^.*uploads\//, 'uploads/')}` : null;
-            const ext     = imgPath ? imgPath.split('.').pop().toLowerCase() : '';
-            const isImg   = ['jpg','jpeg','png','webp'].includes(ext);
+            const imgUrl  = imgPath && /^https?:\/\//i.test(imgPath)
+              ? imgPath
+              : imgPath
+              ? `${API.replace('/api','')}/${imgPath.replace(/^.*uploads\//, 'uploads/')}`
+              : null;
+            const ext     = imgUrl ? imgUrl.split('?')[0].split('.').pop().toLowerCase() : '';
+            const isImg   = ['jpg','jpeg','png','gif','webp'].includes(ext);
             return `
             <tr class="border-b border-gray-100 hover:bg-gray-50/50 transition-colors" id="row-${s._id}">
               <td class="p-4 font-medium text-gray-900 text-sm" data-label="Name">${s.fullName}</td>
@@ -868,9 +878,9 @@
               <td class="p-4 text-gray-500 text-sm hidden md:table-cell" data-label="Phone">${s.phone}</td>
               <td class="p-4" data-label="ID Card">
                 ${imgUrl && isImg
-                  ? `<img src="${imgUrl}" alt="ID" onclick="openImgModal('${imgUrl}','${s._id}')" class="w-14 h-14 object-cover rounded-xl border-2 border-gray-200 cursor-pointer hover:border-sky-400 hover:scale-105 transition-all shadow" title="Click to verify"/>`
+                  ? `<div class="flex items-center gap-3"><img src="${imgUrl}" alt="ID" onclick="openImgModal('${imgUrl}','${s._id}')" class="w-14 h-14 object-cover rounded-xl border-2 border-gray-200 cursor-pointer hover:border-sky-400 hover:scale-105 transition-all shadow" title="Click to verify"/><a href="${imgUrl}" target="_blank" class="max-w-[180px] truncate text-sky-deep text-xs underline" title="${imgUrl}">${imgUrl}</a></div>`
                   : imgUrl
-                  ? `<a href="${imgUrl}" target="_blank" class="text-sky-deep text-xs underline">View PDF</a>`
+                  ? `<a href="${imgUrl}" target="_blank" class="max-w-[180px] inline-block truncate text-sky-deep text-xs underline" title="${imgUrl}">${imgUrl}</a>`
                   : '<span class="text-gray-300 text-xs">—</span>'}
               </td>
               <td class="p-4" data-label="Action">
@@ -1039,6 +1049,27 @@
           </div>`;
       } catch (err) {
         el.innerHTML = '<div class="p-10 text-center text-red-400 text-sm">Failed to load leaderboard</div>';
+      }
+    }
+
+    async function resetLeaderboard() {
+      const firstConfirm = confirm('Export the Excel sheet before clearing this zonal leaderboard. Continue clearing now?');
+      if (!firstConfirm) return;
+      const typed = prompt('Type CLEAR to delete only leaderboard/results and allow students to attempt the next zone:');
+      if (typed !== 'CLEAR') return;
+
+      try {
+        const res = await fetch(`${API}/admin/leaderboard`, {
+          method: 'DELETE',
+          headers: authHeaders(),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to clear leaderboard');
+        alert(`${data.message}\nDeleted attempts: ${data.deletedAttempts}\nStudents reset: ${data.resetStudents}`);
+        loadLeaderboard();
+        fetchData();
+      } catch (err) {
+        alert(err.message || 'Failed to clear leaderboard');
       }
     }
 

@@ -16,6 +16,9 @@ const register = async (req, res) => {
     if (!fullName || !email || !phone || !schoolName) {
       return res.status(400).json({ message: 'All fields are required' });
     }
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please upload your ID card image.' });
+    }
 
     const exists = await Student.findOne({ email: email.toLowerCase() });
     if (exists) return res.status(409).json({ message: 'Email already registered' });
@@ -26,7 +29,7 @@ const register = async (req, res) => {
       phone,
       schoolName,
       yearOfCompletion: yearOfCompletion || '2025',
-      markSheetPath: req.file ? req.file.path : null,
+      markSheetPath: req.cloudImageUrl,
       status: 'approved',
     });
 

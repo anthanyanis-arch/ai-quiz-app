@@ -466,7 +466,7 @@
               </svg>
             </div>
             <p id="file-label" class="text-gray-500 text-sm"><span class="text-gray-700 font-medium">Click to upload</span> or drag and drop</p>
-            <p id="file-hint" class="text-gray-400 text-xs mt-1">PNG, JPG, WEBP · Max 5MB</p>
+            <p id="file-hint" class="text-gray-400 text-xs mt-1">PNG, JPG, WEBP · Max 250 KB</p>
             <input id="file-upload" type="file" class="sr-only" accept=".png,.jpg,.jpeg,.gif,.webp" onchange="handleFile(this)"/>
           </label>
         </div>
@@ -489,7 +489,7 @@
 </main>
 
 <script>
-  const API = 'https://ai-quiz-app-1-zbsq.onrender.com/api';
+  const API = window.API || 'https://ai-quiz-app-1-zbsq.onrender.com/api';
 
   function toggleTick() {
     const wrap = document.getElementById('tick-wrap');
@@ -498,9 +498,29 @@
     wrap.classList.toggle('checked', cb.checked);
   }
 
+  const MAX_UPLOAD_KB = 250;
+  const MAX_UPLOAD_BYTES = MAX_UPLOAD_KB * 1024;
+
+  function showError(message) {
+    const errBox = document.getElementById('error-box');
+    if (!errBox) return;
+    errBox.textContent = message;
+    errBox.style.display = 'block';
+  }
+
   // Global — called from inline onchange attribute
   function handleFile(input) {
     if (!input.files || !input.files[0]) return;
+    if (input.files[0].size > MAX_UPLOAD_BYTES) {
+      input.value = '';
+      document.getElementById('upload-zone').classList.remove('uploaded');
+      document.getElementById('file-label').innerHTML = '<span class="text-gray-700 font-medium">Click to upload</span> or drag and drop';
+      document.getElementById('file-hint').textContent = `PNG, JPG, WEBP · Max ${MAX_UPLOAD_KB} KB`;
+      showError(`File size must be ${MAX_UPLOAD_KB} KB or less.`);
+      return;
+    }
+    const errBox = document.getElementById('error-box');
+    if (errBox) errBox.style.display = 'none';
     document.getElementById('upload-zone').classList.add('uploaded');
     document.getElementById('upload-icon-wrap').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="#6c63ff" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
     document.getElementById('file-label').innerHTML = `<span style="color:#6c63ff;font-weight:600">${input.files[0].name}</span>`;
@@ -550,6 +570,12 @@
         errBox.textContent = 'Please upload your ID card image for admin verification.';
         errBox.style.display = 'block';
         console.warn('[register.html] Validation failed: no file uploaded');
+        return;
+      }
+      if (file.size > MAX_UPLOAD_BYTES) {
+        errBox.textContent = `File size must be ${MAX_UPLOAD_KB} KB or less.`;
+        errBox.style.display = 'block';
+        console.warn('[register.html] Validation failed: file too large');
         return;
       }
 

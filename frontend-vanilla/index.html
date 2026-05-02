@@ -267,6 +267,15 @@
       color: #6c63ff;
       display: inline-flex; align-items: center; gap: 6px;
     }
+    .registration-glow {
+      color: #0891b2;
+      text-shadow: 0 0 8px rgba(63,208,230,0.55), 0 0 18px rgba(108,99,255,0.35);
+      animation: registrationPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes registrationPulse {
+      0%, 100% { opacity: 0.82; text-shadow: 0 0 8px rgba(63,208,230,0.45), 0 0 18px rgba(108,99,255,0.28); }
+      50% { opacity: 1; text-shadow: 0 0 12px rgba(63,208,230,0.85), 0 0 28px rgba(108,99,255,0.48); }
+    }
 
     /* Stat ring */
     .stat-ring {
@@ -434,16 +443,6 @@
   <div id="navbar-root"></div>
   <script src="navbar.js"></script>
 
-  <!-- Marquee -->
-  <div style="position:fixed;top:64px;left:0;right:0;z-index:47;background:linear-gradient(90deg,#021417,#0a3d4a,#021417);padding:6px 0;overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(63,208,230,0.2);">
-    <div style="display:inline-block;animation:mqScroll 22s linear infinite;">
-      <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.07em;">
-        <span style="color:#3fd0e6">&nbsp;&nbsp;&#10022;&nbsp; Proudly Presented by &nbsp;</span><span style="color:#ffffff;text-shadow:0 0 8px rgba(63,208,230,0.5);">AAACET</span><span style="color:#3fd0e6"> &nbsp;&mdash;&nbsp; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.4);">Department of Artificial Intelligence &amp; Data Science</span><span style="color:#3fd0e6">&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&nbsp;&#10022;&nbsp; Proudly Presented by &nbsp;</span><span style="color:#ffffff;text-shadow:0 0 8px rgba(63,208,230,0.5);">AAACET</span><span style="color:#3fd0e6"> &nbsp;&mdash;&nbsp; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.4);">Department of Artificial Intelligence &amp; Data Science</span><span style="color:#3fd0e6">&nbsp;&nbsp;&#10022;&nbsp;</span>
-      </span>
-    </div>
-  </div>
-  <style>@keyframes mqScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}</style>
-
   <!-- ───── MAIN ───── -->
   <main class="flex-grow relative z-10">
 
@@ -543,7 +542,7 @@
             <img src="college.jfif" alt="AAA College" style="width:100%;max-width:480px;height:120px;object-fit:cover;border-radius:10px;margin-bottom:10px;opacity:0.92;">
             <p class="text-sm font-bold tracking-wide" style="color:#dc2626">AAA COLLEGE OF ENGINEERING AND TECHNOLOGY</p>
             <p class="text-xs font-semibold uppercase tracking-widest mt-0.5" style="color:#4f46e5">An Autonomous Institution</p>
-            <p class="text-xs text-gray-500 mt-0.5">Department of Artificial Intelligence and Data Science</p>
+            <p class="text-xs text-gray-500 mt-0.5"></p>
           </div>
         </div>
 
@@ -577,8 +576,9 @@
           </div>
           <div class="w-px bg-[#6c63ff]/10 self-stretch"></div>
           <div class="text-center">
-            <p class="font-mono font-bold text-2xl text-[#6c63ff]">12th</p>
-            <p class="text-xs text-gray-400 font-medium tracking-wide mt-1">Students Only</p>
+            <p class="font-mono font-bold text-2xl text-[#6c63ff]">300+</p>
+            <p class="text-xs text-gray-400 font-medium tracking-wide mt-1">Registration</p>
+            <p class="registration-glow text-xs font-bold tracking-wide mt-1">Make your registration done</p>
           </div>
         </div>
       </div>
@@ -588,7 +588,7 @@
     <div class="divider-glow mx-4 sm:mx-8 lg:mx-16 reveal"></div>
 
     <!-- ── FEATURE CARDS ── -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <section id="instructions" class="py-20 px-4 sm:px-6 lg:px-8 scroll-mt-28">
       <div class="max-w-6xl mx-auto">
 
         <div class="text-center mb-14 reveal">
@@ -841,7 +841,7 @@
             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </div>
-            <span class="font-bold text-[#0f0c29]">AI Quiz Competition 2026</span>
+            <span class="font-bold text-[#0f0c29]">AAACET AI CHAMPIONSHIP</span>
           </div>
           <p class="text-gray-400 text-xs max-w-xs">An exclusive AI knowledge competition for tomorrow's engineers and data scientists.</p>
         </div>

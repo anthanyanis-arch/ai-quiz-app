@@ -420,10 +420,6 @@
       transition: width 0.4s ease;
     }
   </style>
-  <script>
-    // Init theme before render to avoid flash
-    (function(){ if(localStorage.getItem('theme')==='dark') document.documentElement.classList.add('dark'); })();
-  </script>
 </head>
 <body class="flex flex-col min-h-screen">
   <script src="api.js"></script>
@@ -477,13 +473,9 @@
         </div>
       </div>
 
-      <!-- Right: toast + timer + theme toggle -->
+      <!-- Right: toast + timer -->
       <div class="flex items-center gap-2 flex-shrink-0">
         <span id="saved-toast" class="hidden saved-toast">âœ“ Saved</span>
-        <button onclick="nbToggleTheme()" class="p-2 rounded-xl glass flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity" aria-label="Toggle dark mode">
-          <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <svg id="icon-moon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
         <div id="timer-box" class="timer-normal">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span id="timer-display">20:00</span>
@@ -727,28 +719,15 @@
   </div>
 
   <script>
-    const API = 'https://ai-quiz-app-1-zbsq.onrender.com/api';
+    const API = window.API || 'https://ai-quiz-app-1-zbsq.onrender.com/api';
+    const QUIZ_STATUS_POLL_MS = 10000;
+    const QUIZ_STATUS_POLL_JITTER_MS = 5000;
     let questions = [], answers = {}, currentIdx = 0, timerSeconds = 1200, timerInterval;
-    let statusPollInterval;
+    let statusPollTimeout;
 
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || 'null');
     if (!token || !user) { window.location.href = 'login.html'; }
-
-    function nbToggleTheme() {
-      const dark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', dark ? 'dark' : 'light');
-      document.getElementById('icon-sun').classList.toggle('hidden', dark);
-      document.getElementById('icon-moon').classList.toggle('hidden', !dark);
-    }
-    // Sync icons on load
-    (function(){
-      const dark = document.documentElement.classList.contains('dark');
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('icon-sun').classList.toggle('hidden', dark);
-        document.getElementById('icon-moon').classList.toggle('hidden', !dark);
-      });
-    })();
 
     function authH(json = false) {
       const h = { Authorization: `Bearer ${token}` };
@@ -816,21 +795,25 @@
         const statusRes = await fetch(`${API}/quiz/status`);
         const statusData = await statusRes.json();
         if (!statusData.quizStarted) {
-          // Show waiting lobby and poll every 3s
+          // Show waiting lobby and poll with jitter so many students do not hit at once.
           document.getElementById('loading-view').classList.add('hidden');
           document.getElementById('waiting-view').classList.remove('hidden');
-          statusPollInterval = setInterval(async () => {
+          const pollQuizStatus = async () => {
             try {
               const r = await fetch(`${API}/quiz/status`);
               const d = await r.json();
               if (d.quizStarted) {
-                clearInterval(statusPollInterval);
+                clearTimeout(statusPollTimeout);
                 document.getElementById('waiting-view').classList.add('hidden');
                 document.getElementById('loading-view').classList.remove('hidden');
                 await startQuizLoad();
+                return;
               }
             } catch (_) {}
-          }, 3000);
+            const jitter = Math.floor(Math.random() * QUIZ_STATUS_POLL_JITTER_MS);
+            statusPollTimeout = setTimeout(pollQuizStatus, QUIZ_STATUS_POLL_MS + jitter);
+          };
+          statusPollTimeout = setTimeout(pollQuizStatus, Math.floor(Math.random() * QUIZ_STATUS_POLL_JITTER_MS));
           return;
         }
       } catch (_) {
