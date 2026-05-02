@@ -295,6 +295,7 @@
     const root = document.getElementById('navbar-root');
     if (!root) return;
     root.innerHTML = buildNavbar();
+    const mq = document.createElement('div'); mq.style.cssText = 'position:fixed;top:64px;left:0;right:0;z-index:47;background:linear-gradient(90deg,#021417,#0a3d4a,#021417);padding:6px 0;overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(63,208,230,0.2);;'; const mqInner = document.createElement('div'); mqInner.style.cssText = 'display:flex;width:max-content;animation:mqScroll 25s linear infinite;'; const mqText = '<span style="font-family:Syne,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.07em;padding-right:80px;"><span style="color:#3fd0e6">&#10022; Proudly Presented by &nbsp;</span><span style="color:#fff;text-shadow:0 0 8px rgba(63,208,230,0.6);">AAACET</span><span style="color:#3fd0e6"> &mdash; </span><span style="color:#fbbf24;text-shadow:0 0 8px rgba(251,191,36,0.5);">Department of Artificial Intelligence &amp; Data Science &nbsp;</span></span>'; mqInner.innerHTML = mqText + mqText + mqText + mqText; mq.appendChild(mqInner); const mqStyle = document.createElement('style'); mqStyle.textContent = '@keyframes mqScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}'; document.head.appendChild(mqStyle); document.body.appendChild(mq); document.body.style.paddingTop = '92px';
     startNeuralAnimation();
     let lastScroll = 0;
     window.addEventListener('scroll', () => {
