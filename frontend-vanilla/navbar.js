@@ -1,12 +1,11 @@
 (function () {
   const NAV = [
     { href: 'index.html', label: 'Home', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
-    { href: 'leaderboard.html', label: 'Leaderboard', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 0 0 5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 1 0 5H18"/><path d="M8 9h8"/><path d="M8 14h8"/><rect x="6" y="2" width="12" height="7" rx="1"/><path d="M6 18h12"/><path d="M10 22h4"/><path d="M12 18v4"/></svg>` },
     { href: 'register.html', label: 'Register', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>` },
     { href: 'instructions.html', label: 'Instructions', icon: `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>` },
   ];
 
-  const LOGO_SVG = `<img src="college4.png" alt="AAACET" style="width:36px;height:36px;object-fit:cover;border-radius:50%;border:2px solid rgba(63,208,230,0.5);box-shadow:0 0 10px rgba(63,208,230,0.3);">`;
+  const LOGO_SVG = ``;
   const CSS = `
     #nb-root {
       position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -35,12 +34,11 @@
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
     .nb-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; max-width: calc(100% - 60px); }
-    .nb-logo-icon {
-      width: 48px; height: 48px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), box-shadow 0.3s ease;
-      flex-shrink: 0;
-    }
+    .nb-logo-icon { display: none; }
+    .nb-logo { gap: 0; }
+    .nb-logo-text { align-items: center; text-align: center; }
+    .nb-inner { justify-content: center; position: relative; }
+    .nb-actions { position: absolute; right: 20px; }
     .nb-logo:hover .nb-logo-icon { transform: translateY(-2px) scale(1.06); box-shadow: 0 8px 24px rgba(63,208,230,0.35); }
     .nb-logo-text { display: flex; flex-direction: column; line-height: 1.3; }
     .nb-logo-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #d9f3f7; letter-spacing: -0.01em; line-height: 1.3; word-break: break-word; }
@@ -177,7 +175,7 @@
           <a href="index.html" class="nb-logo">
             <div class="nb-logo-icon">${LOGO_SVG}</div>
             <div class="nb-logo-text">
-              <span class="nb-logo-title">AAACET AI Championship</span>
+              <span class="nb-logo-title"><h1>AI T20 Championship</h1></span>
               <span class="nb-logo-sub">Competition 2026 · AAACET</span>
             </div>
           </a>
